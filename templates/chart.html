@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Planet Progress Statistics</title>
+    <!-- import plugin script -->
+    <script src='static/Chart.min.js'></script>
+
+</head>
+
+<body>
+    <h1>Progress</h1>
+    <!-- bar chart canvas element -->
+    <canvas id="myChart" width="600" height="400"></canvas>
+    <p id="caption">The chart is displaying planet capture progress over time.</p>
+
+    <script>
+        // Global parameters:
+        // do not resize the chart canvas when its container does (keep at 600x400px)
+        Chart.defaults.global.responsive = true;
+		Chart.defaults.global.elements.line.fill = false;
+
+        // define the chart data
+        var chartData = {
+            labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
+            datasets: [{% for key, planetname in planet_data.planet_names.items() %}
+			{
+                label: "{{planetname}}",
+                //fill: true,
+                lineTension: 0.1,
+                //borderColor: null,
+				borderColor:"{{planet_data.colors.get(key)}}",
+                //borderColor: "rgba(75,192,192,1)",
+				//{{key}}
+				//backgroundColor: "{{planet_data.colors.get(key)}}",
+				backgroundColor: null,
+				borderWidth: 7,
+                borderCapStyle: 'butt',
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: 'miter',
+                //pointBorderColor: "rgba(75,192,192,1)",
+                //pointBackgroundColor: "#fff",
+                pointBorderWidth: 1,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                pointHoverBorderWidth: 2,
+                pointRadius: 1,
+                pointHitRadius: 10,
+				data:[{% for key1, value1 in planet_data.planet_stats[key] %}{{key1}},{% endfor %}],
+                spanGaps: false
+            },{% endfor %}]
+        }
+
+        // get chart canvas
+        var ctx = document.getElementById("myChart").getContext("2d");
+
+        // create the chart using the chart canvas
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+        });
+    </script>
+
+</body>
+
+</html>
