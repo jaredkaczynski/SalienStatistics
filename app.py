@@ -107,8 +107,9 @@ def update_time_scale():
     #save the data to file
  
 def update_colors():
-    global planet_data
-    colors = ["#F9C80E","#F86624","EA3546","#662E9B","43BCCD"]
+    global planet_data\
+    #["#F9C80E","#F86624","EA3546","#662E9B","43BCCD"]
+    colors = ["#540D6E","#EE4266","#FFD23F","#72ff77","#1F271B"]
     for planet_id,planet_stats in planet_data.planet_stats.items():
         print("Planet Stats Coloring: " + str(planet_stats[-1]))
         if(planet_stats[-1].capture_progress != "null" and float(planet_stats[-1].capture_progress) > 0 and float(planet_stats[-1].capture_progress) < 1):
