@@ -119,6 +119,8 @@ def update_colors():
     #print(planet_data.planet_stats)
     #print(planet_data.planet_stats['6'])
 def update_data():
+    global planet_data
+    del(planet_data)
     load_from_files()
     update_time_scale()
     update_colors()
