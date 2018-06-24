@@ -7,8 +7,6 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 import collections as ct
 import dill as pickle
-import matplotlib.pyplot as plt
-import numpy as np
 
 import glob
 import requests
@@ -41,7 +39,7 @@ def load_from_web():
     parse_json(response.content)
         
 def load_from_files():
-    path = 'logger2/PlanetData1*.txt'
+    path = 'logger/PlanetData1*.txt'
     files=glob.glob(path)
     for file in sorted(files):
         #print(file)
