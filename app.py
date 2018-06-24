@@ -132,7 +132,7 @@ def setup_scheduler():
     scheduler.start()
     scheduler.add_job(
         func=update_data,
-        trigger=IntervalTrigger(seconds=300),
+        trigger=IntervalTrigger(minutes=5),
         id='Data Update Job',
         name='Get new chart data every 5 minutes',
         replace_existing=True)
@@ -158,8 +158,7 @@ def main():
     #print(loadData().planet_stats)
     setup_scheduler()
     update_data()
-    app.run(debug=True)
-
+    app.run(host="0.0.0.0",port=8001)
 main()
 
 # Shut down the scheduler when exiting the app
