@@ -1,28 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
 
-<head>
-    <meta charset="utf-8" />
-    <title>Planet Completion Statistics</title>
-    <!-- import plugin script -->
+    <title>Dashboard Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+	<!-- import plugin script -->
     <script src='static/Chart.min.js'></script>
+    <!-- Custom styles for this template -->
+    <link href="static/dashboard.css" rel="stylesheet">
+  </head>
 
-</head>
+  <body>
+    <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
+      <button class="navbar-toggler navbar-toggler-right hidden-lg-up" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="#">Dashboard</a>
+    </nav>
 
-<body>
-    <h1>Progress</h1>
-    <!-- bar chart canvas element -->
-    <canvas id="myChart" width="1400" height="800"></canvas>
-    <p id="caption">The chart is displaying planet completion percentage over time.</p>
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
+          <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="/planet_charts">Planet Progress Statistics<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/player_charts">Player Count Statistics</a>
+            </li>
+          </ul>
+        </nav>
 
-    <script>
+        <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
+          <h1>Dashboard</h1>
+
+          <section class="row text-center placeholders">
+            <canvas id="PlanetChart" ></canvas>
+          </section>
+        </main>
+      </div>
+    </div>
+	
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+	<script>
         // Global parameters:
         // do not resize the chart canvas when its container does (keep at 600x400px)
-        Chart.defaults.global.responsive = false;
+        Chart.defaults.global.responsive = true;
 		Chart.defaults.global.elements.line.fill = false;
 
         // define the chart data
-        var chartData = {
+        var chartDataB = {
             labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
             datasets: [{% for key, planetname in planet_data.planet_names.items() %}
 			{
@@ -49,22 +89,30 @@
                 pointHoverBorderWidth: 2,
                 pointRadius: 1,
                 pointHitRadius: 10,
-				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.capture_progress}},{% endfor %}],
+				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
 				data:[{% for key1 in planet_data.planet_stats[key] %}{% if loop.index0 % 4 == 0 %}	{{key1.capture_progress}},{% endif %}{% endfor %}],
                 spanGaps: false
-            },{% endfor %}]
+            },{% endfor %}],
+			options: {
+				layout: {
+					padding: {
+					left: 100,
+					right: 100,
+					top: 200,
+					bottom: 200,
+            }
+        }
+    }
         }
 
         // get chart canvas
-        var ctx = document.getElementById("myChart").getContext("2d");
+        var ctx = document.getElementById("PlanetChart").getContext("2d");
 
         // create the chart using the chart canvas
-        var myChart = new Chart(ctx, {
+        var PlanetChart = new Chart(ctx, {
             type: 'line',
-            data: chartData,
+            data: chartDataB,
         });
     </script>
-
-</body>
-
+  </body>
 </html>
