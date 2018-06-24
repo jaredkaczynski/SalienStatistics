@@ -121,6 +121,7 @@ def update_colors():
 def update_data():
     global planet_data
     del(planet_data)
+    planet_data = loadData()
     load_from_files()
     update_time_scale()
     update_colors()
