@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Planet Progress Statistics</title>
+    <title>Player Count Statistics</title>
     <!-- import plugin script -->
     <script src='static/Chart.min.js'></script>
 
@@ -13,7 +13,7 @@
     <h1>Progress</h1>
     <!-- bar chart canvas element -->
     <canvas id="myChart" width="1400" height="800"></canvas>
-    <p id="caption">The chart is displaying planet capture progress over time.</p>
+    <p id="caption">The chart is displaying player count over time.</p>
 
     <script>
         // Global parameters:
@@ -49,7 +49,12 @@
                 pointHoverBorderWidth: 2,
                 pointRadius: 1,
                 pointHitRadius: 10,
-				data:[{% for key1, value1 in planet_data.planet_stats[key] %}{{key1}},{% endfor %}],
+				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.capture_progress}},{% endfor %}],
+				data:[{% for key1 in planet_data.planet_stats[key] %}
+				      {% if loop.index0 % 4 == 0 %}	
+						{{key1.capture_progress}},
+						      {% endif %}
+						{% endfor %}],
                 spanGaps: false
             },{% endfor %}]
         }

@@ -23,7 +23,10 @@ class DataObject:
         self.dts = []
         self.colors = dict()
         #cmap(np.linspace(0, 1, 5))
-        
+class PlanetData():
+    def __init__(self,capture_progress,current_players):
+        self.capture_progress = capture_progress
+        self.current_players = current_players
     
 #hold lists of completion % of planets
 planet_data = None
@@ -78,19 +81,19 @@ def parse_json(response):
                 #prepend nulls to list of data
                 for i in range(0,int(longest_list)):
                     #print("Filling nulls")
-                    temp_list.append(('null','null')) 
+                    temp_list.append(PlanetData('null','null')) 
             #if it's already got to 100% don't log it
-            if(temp_list and (temp_list[-1][0] == '1' or (temp_list[-1][0] == 'null' and temp_list[-2][0] != 'null'))):
+            if(temp_list and (temp_list[-1].capture_progress == '1' or (temp_list[-1].capture_progress == 'null' and temp_list[-2].capture_progress != 'null'))):
                 pass
             else:
-                temp_list.append((planet['state']['capture_progress'],time()))
+                temp_list.append(PlanetData(planet['state']['capture_progress'],planet['state']['current_players']))
     except:
         pass 
     #If the planet is finished, set the end to null
     longest_list = get_longest_list()
     for planet_id,planet_stats in planet_data.planet_stats.items():
-        if(len(planet_stats)<longest_list and planet_stats[-1][0]!= "null" and float(planet_stats[-1][0]) > .98):
-            planet_stats.append(('null','null')) 
+        if(len(planet_stats)<longest_list and planet_stats[-1].capture_progress != "null" and float(planet_stats[-1].capture_progress) > .98):
+            planet_stats.append(PlanetData('null','null'))
 
 def update_time_scale():
     global planet_data
@@ -99,7 +102,7 @@ def update_time_scale():
     #dts = [dt.strftime('%Y-%m-%d T%H:%M Z') for dt in
     dts = [dt.strftime('%d T%H:%M') for dt in  
        datetime_range(datetime(2018, 6, 22, 4, 5), datetime.now(), 
-       timedelta(minutes=5))]  
+       timedelta(minutes=20))]  
     planet_data.dts = dts
     #save the data to file
  
@@ -108,12 +111,12 @@ def update_colors():
     colors = ["#540D6E","#EE4266","#FFD23F","#F3FCF0","#1F271B"]
     for planet_id,planet_stats in planet_data.planet_stats.items():
         print("Planet Stats Coloring: " + str(planet_stats[-1]))
-        if(planet_stats[-1][0] != "null" and float(planet_stats[-1][0]) > 0 and float(planet_stats[-1][0]) < 1):
+        if(planet_stats[-1].capture_progress != "null" and float(planet_stats[-1].capture_progress) > 0 and float(planet_stats[-1].capture_progress) < 1):
             print("set active color " + planet_id)
             planet_data.colors[planet_id] = colors.pop()
         else:
             planet_data.colors[planet_id] = "rgba(192,192,192,1)"
-    print(planet_data.colors)
+    #print(planet_data.planet_stats)
     #print(planet_data.planet_stats['6'])
 def update_data():
     load_from_files()
@@ -126,6 +129,12 @@ def chart():
     legend = 'Capture Data'
     #if it needs to update the data
     return render_template('chart.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
+ 
+@app.route("/player_charts")
+def chart2():
+    legend = 'Player Data'
+    #if it needs to update the data
+    return render_template('chart_players.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
  
 def setup_scheduler():
     scheduler = BackgroundScheduler()
