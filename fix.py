@@ -68,7 +68,7 @@ def parse_json(response,file):
             temp_list = planet_data.planet_stats[planet['id']]
             #new planet, needs nulls at the beginning
             if(planet['id'] not in planet_data.planet_names):
-                print("New Planet " + planet['id'])
+                #print("New Planet " + planet['id'])
                 planet_data.planet_names[planet['id']] = planet['state']['name']
                 #prepend nulls to list of data
                 for i in range(0,int(longest_list)):
@@ -82,7 +82,7 @@ def parse_json(response,file):
                 
         for planet_id in planet_data.planet_stats:
             #print(planet_json['response']['planets'])
-            print(planet_id)
+            #print(planet_id)
             contains = any(planet['id'] == planet_id for planet in planet_json['response']['planets'])
             #print(contains)
             #print(planet_id not in planet_json['response']['planets'])
@@ -103,10 +103,5 @@ def parse_json(response,file):
         print( "jsondict")            
     except:
         pass 
-    #If the planet is finished, set the end to null
-    longest_list = get_longest_list()
-    for planet_id,planet_stats in planet_data.planet_stats.items():
-        if(len(planet_stats)<longest_list and planet_stats[-1].capture_progress != "null" and float(planet_stats[-1].capture_progress) > .98):
-            planet_stats.append(PlanetData('null','null'))
             
 load_from_files()
