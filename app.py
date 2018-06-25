@@ -129,7 +129,7 @@ def update_data():
 
     
 @app.route("/planet_charts")
-def chart():
+def chart1():
     legend = 'Capture Data'
     #if it needs to update the data
     return render_template('chart.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
@@ -139,7 +139,13 @@ def chart2():
     legend = 'Player Data'
     #if it needs to update the data
     return render_template('chart_players.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
- 
+    
+@app.route("/planet_live")
+def chart3():
+    legend = 'Player Data'
+    #if it needs to update the data
+    return render_template('chart_planet_data.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
+    
 def setup_scheduler():
     scheduler = BackgroundScheduler()
     scheduler.start()
@@ -171,7 +177,7 @@ def main():
     #print(loadData().planet_stats)
     setup_scheduler()
     update_data()
-    app.run(host="0.0.0.0",port=8001)
+    app.run(host="127.0.0.1",port=8001)
 main()
 
 # Shut down the scheduler when exiting the app
