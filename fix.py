@@ -95,7 +95,7 @@ def parse_json(response,file):
                 
         #print(planet_json)
                 
-        with open(../logger4/file, 'w') as f:
+        with open(file, 'w') as f:
             json.dump(planet_json, f)
             #file.write(planet_json)
         print("writing")

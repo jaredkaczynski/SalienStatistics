@@ -57,7 +57,7 @@ def load_from_web():
     parse_json(response.content)
         
 def load_from_files():
-    path = 'logger4/PlanetData1*.txt'
+    path = 'logger3/PlanetData1*.txt'
     files=glob.glob(path)
     for file in sorted(files):
         #print(file)
