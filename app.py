@@ -4,6 +4,7 @@ from time import time
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+from flask_caching import Cache
 
 import collections as ct
 import dill as pickle
@@ -15,6 +16,8 @@ import atexit
 
  
 app = Flask(__name__)
+# For more configuration options, check out the documentation
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 class DataObject:
     def __init__(self):
@@ -38,7 +41,7 @@ def datetime_range(start, end, delta):
         current += delta 
 
 def load_from_web():
-    response = requests.get("https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/?active_only=1&language=english")
+    response = requests.get("https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/&language=english")
     parse_json(response.content)
         
 def load_from_files():
@@ -92,7 +95,7 @@ def parse_json(response):
     #If the planet is finished, set the end to null
     longest_list = get_longest_list()
     for planet_id,planet_stats in planet_data.planet_stats.items():
-        if(len(planet_stats)<longest_list and planet_stats[-1].capture_progress != "null" and float(planet_stats[-1].capture_progress) > .98):
+        if(planet_stats[-1].capture_progress != "null" and planet_stats[-1].capture_progress == 1):
             planet_stats.append(PlanetData('null','null'))
 
 def update_time_scale():
@@ -129,23 +132,27 @@ def update_data():
 
     
 @app.route("/planet_charts")
+@cache.cached(timeout=5)
 def chart1():
     legend = 'Capture Data'
     #if it needs to update the data
     return render_template('chart.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
  
 @app.route("/player_charts")
+@cache.cached(timeout=5)
 def chart2():
     legend = 'Player Data'
     #if it needs to update the data
     return render_template('chart_players.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
     
 @app.route("/planet_live")
+@cache.cached(timeout=5)
 def chart3():
     legend = 'Player Data'
     #if it needs to update the data
     return render_template('chart_planet_data.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
-    
+ 
+ 
 def setup_scheduler():
     scheduler = BackgroundScheduler()
     scheduler.start()
@@ -177,7 +184,7 @@ def main():
     #print(loadData().planet_stats)
     setup_scheduler()
     update_data()
-    app.run(host="0.0.0.0",port=8001)
+    app.run(host="0.0.0.0",port=8001,debug=False)
 main()
 
 # Shut down the scheduler when exiting the app
