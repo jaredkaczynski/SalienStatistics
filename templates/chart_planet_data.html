@@ -238,6 +238,9 @@
 			//$('#planet-append').Item("test","test","test"));
 			dataList = []
 			planets.forEach(function(planet) {
+				if(isNaN(planet.state.capture_progress) || planet.state.capture_progress === null){
+					planet.state.capture_progress = 0;
+				}
 				dataList.push({url: planet.state.giveaway_id, img: planet.state.image_filename, title: planet.state.name.replace("#TerritoryControl_Planet","Planet ").replace(/_/g," "),
 				current_players:planet.state.current_players,capture_progress:Math.round(parseInt(planet.state.capture_progress*10000)) / 100,id:planet.id})
                     //$('#planet-append').append(Item(planet.state.giveaway_id,planet.state.image_filename,planet.state.name));
