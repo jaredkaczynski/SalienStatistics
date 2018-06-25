@@ -313,7 +313,7 @@
 				planet = dict[id]
 				if(isNaN(planet.state.capture_progress) || planet.state.capture_progress === null){
 					planet.state.capture_progress = 0;
-					planet.state.current_players = 0;
+					planet.state.current_players = "Current Players: 0";
 				}
 				$(this).attr('capture_progress',Math.round(parseInt(planet.state.capture_progress*10000)) / 100);
 				$(this).find('.progress-bar').css('width', Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + '%');
