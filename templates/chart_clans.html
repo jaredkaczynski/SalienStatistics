@@ -33,10 +33,10 @@
               <a class="nav-link" href="/planet_charts">Planet Progress Statistics</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="/player_charts">Player Count Statistics<span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="/player_charts">Player Count Statistics<span class="sr-only">(current)</span></a>
             </li>
 			<li class="nav-item">
-              <a class="nav-link" href="/clan_charts">Clan Zone Statistics</a>
+              <a class="nav-link active" href="/clan_charts">Clan Zone Statistics</a>
             </li>
 			<li class="nav-item">
               <a class="nav-link" href="/planet_live">Planet Live Data</a>
@@ -45,10 +45,10 @@
         </nav>
 
         <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
-          <h1>Dashboard</h1>
+          <h1>Clan Zone Capture Statistics</h1>
 
           <section class="row text-center placeholders">
-            <canvas id="PlayerChart" ></canvas>
+            <canvas id="PlanetChart" ></canvas>
           </section>
         </main>
       </div>
@@ -68,15 +68,15 @@
 		Chart.defaults.global.elements.line.fill = false;
 
         // define the chart data
-        var chartDataA = {
+        var chartDataB = {
             labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
-            datasets: [{% for key, planetname in planet_data.planet_names.items() %}
+            datasets: [{% for clan, clan_info in planet_data.top_clans_rotated.items() %}
 			{
-                label: "{{planetname}}",
+                label: "{{clan}}",
                 //fill: true,
                 lineTension: 0.1,
                 //borderColor: null,
-				borderColor:"{{planet_data.colors.get(key)}}",
+				borderColor:"{{planet_data.clan_colors[loop.index%20]}}",
                 //borderColor: "rgba(75,192,192,1)",
 				//{{key}}
 				//backgroundColor: "{{planet_data.colors.get(key)}}",
@@ -96,7 +96,7 @@
                 pointRadius: 1,
                 pointHitRadius: 10,
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
-				data:[{% for key1 in planet_data.planet_stats[key] %}{% if loop.index0 % 4 == 0 %}	{{key1.current_players}},{% endif %}{% endfor %}],
+				data:[{% for key1 in clan_info.clan_data %}{% if loop.index % 4 == 0 %}	{{key1}},{% endif %}{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
 			options: {
@@ -112,12 +112,12 @@
         }
 
         // get chart canvas
-        var ctx = document.getElementById("PlayerChart").getContext("2d");
+        var ctx = document.getElementById("PlanetChart").getContext("2d");
 
         // create the chart using the chart canvas
-        var PlayerChart = new Chart(ctx, {
+        var PlanetChart = new Chart(ctx, {
             type: 'line',
-            data: chartDataA,
+            data: chartDataB,
         });
     </script>
   </body>
