@@ -241,8 +241,8 @@
 				if(isNaN(planet.state.capture_progress) || planet.state.capture_progress === null){
 					planet.state.capture_progress = 0;
 				}
-				if(planet.state.current_players == "undefined" || planet.state.current_players === null){
-					planet.state.current_players = "Players: 0";
+				if(String(planet.state.current_players).includes("undefined")){
+					planet.state.current_players = "0";
 				}
 				dataList.push({url: planet.state.giveaway_id, img: planet.state.image_filename, title: planet.state.name.replace("#TerritoryControl_Planet","Planet ").replace(/_/g," "),
 				current_players:planet.state.current_players,capture_progress:Math.round(parseInt(planet.state.capture_progress*10000)) / 100,id:planet.id})
@@ -316,14 +316,14 @@
 				if(isNaN(planet.state.capture_progress) || planet.state.capture_progress === null){
 					planet.state.capture_progress = 0;
 				}
-				if(planet.state.current_players == "undefined" || planet.state.current_players === null){
-					planet.state.current_players = "Players: 0";
+				if(String(planet.state.current_players).includes("undefined")){
+					planet.state.current_players = "0";
 				}
 				$(this).attr('capture_progress',Math.round(parseInt(planet.state.capture_progress*10000)) / 100);
 				$(this).find('.progress-bar').css('width', Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + '%');
 				$(this).find('.progress-bar').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
 				//$(this).find('.progress-value').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
-				$(this).find('.text-muted').text(planet.state.current_players);
+				$(this).find('.text-muted').text("Players: " + planet.state.current_players);
 			});
 		}
 		$('#sortId').on('click', function () {
