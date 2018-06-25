@@ -30,7 +30,7 @@ class PlanetData():
 planet_data = DataObject()
 
 def load_from_files():
-    path = 'logger/PlanetData1*.txt'
+    path = 'logger3/PlanetData1*.txt'
     files=glob.glob(path)
     for file in sorted(files):
         #print(file)
@@ -95,7 +95,7 @@ def parse_json(response,file):
                 
         #print(planet_json)
                 
-        with open(file, 'w') as f:
+        with open(../logger4/file, 'w') as f:
             json.dump(planet_json, f)
             #file.write(planet_json)
         print("writing")

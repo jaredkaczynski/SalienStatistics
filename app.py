@@ -57,7 +57,7 @@ def load_from_web():
     parse_json(response.content)
         
 def load_from_files():
-    path = 'logger/PlanetData1*.txt'
+    path = 'logger4/PlanetData1*.txt'
     files=glob.glob(path)
     for file in sorted(files):
         #print(file)
@@ -153,7 +153,7 @@ def update_time_scale():
     #Y M D H M
     #dts = [dt.strftime('%Y-%m-%d T%H:%M Z') for dt in
     dts = [dt.strftime('%d T%H:%M') for dt in  
-       datetime_range(datetime(2018, 6, 22, 4, 5), datetime.now(), 
+       datetime_range(datetime(2018, 6, 22, 4, 5), datetime.utcnow(), 
        timedelta(minutes=20))]  
     planet_data.dts = dts
     #save the data to file
