@@ -240,7 +240,9 @@
 			planets.forEach(function(planet) {
 				if(isNaN(planet.state.capture_progress) || planet.state.capture_progress === null){
 					planet.state.capture_progress = 0;
-					planet.state.current_players = 0;					
+				}
+				if(planet.state.current_players == "undefined" || planet.state.current_players === null){
+					planet.state.current_players = "Players: 0";
 				}
 				dataList.push({url: planet.state.giveaway_id, img: planet.state.image_filename, title: planet.state.name.replace("#TerritoryControl_Planet","Planet ").replace(/_/g," "),
 				current_players:planet.state.current_players,capture_progress:Math.round(parseInt(planet.state.capture_progress*10000)) / 100,id:planet.id})
@@ -313,7 +315,9 @@
 				planet = dict[id]
 				if(isNaN(planet.state.capture_progress) || planet.state.capture_progress === null){
 					planet.state.capture_progress = 0;
-					planet.state.current_players = "Current Players: 0";
+				}
+				if(planet.state.current_players == "undefined" || planet.state.current_players === null){
+					planet.state.current_players = "Players: 0";
 				}
 				$(this).attr('capture_progress',Math.round(parseInt(planet.state.capture_progress*10000)) / 100);
 				$(this).find('.progress-bar').css('width', Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + '%');
