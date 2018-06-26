@@ -83,7 +83,7 @@ def load_from_files():
 def load_from_files_zone(zone):
     path = 'zonelog/**/' + zone + '.html'
     files=glob.glob(path)
-    for file in files[0::1]:
+    for file in files[0::4]:
         #print(file)
         with open(file, 'r', encoding='utf-8') as f:
             parse_json_planet(f.read())
@@ -278,13 +278,13 @@ def update_data():
 
 def rotate(matrix, degree):
     if abs(degree) not in [0, 90, 180, 270, 360]:
-        # raise error or just return nothing or original
+        return
     if degree == 0:
         return matrix
     elif degree > 0:
-        return rotate(zip(*matrix[::-1]), degree-90)
+        return rotate(list(zip(*matrix))[::-1], degree-90)
     else:
-        return rotate(zip(*matrix)[::-1], degree+90)    
+        return rotate(list(zip(*matrix))[::-1], degree+90)    
     
 @app.route('/') 
 @app.route("/planet_charts")
