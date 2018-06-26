@@ -97,9 +97,11 @@ def load_from_files_zone(zone):
             foldername = file.split("/")[1]
         foldername = "2018 " + foldername
         #print(foldername)
-        
-        file_datetime = (datetime.strptime(foldername,"%Y %j-%H%M"))
-
+        file_datetime = None
+        try:
+            file_datetime = (datetime.strptime(foldername,"%Y %j-%H%M"))
+        except:
+            file_datetime = (datetime.strptime(foldername,"%Y %j-%H:%M"))
         filetime = file_datetime.timestamp()
         #print(filetime)       
         if((filetime+1800) > planet_data.time_data[zone][0]):
