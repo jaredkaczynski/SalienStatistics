@@ -276,6 +276,16 @@ def update_data():
     update_time_scale()
     update_colors()
 
+def rotate(matrix, degree):
+    if abs(degree) not in [0, 90, 180, 270, 360]:
+        # raise error or just return nothing or original
+    if degree == 0:
+        return matrix
+    elif degree > 0:
+        return rotate(zip(*matrix[::-1]), degree-90)
+    else:
+        return rotate(zip(*matrix)[::-1], degree+90)    
+    
 @app.route('/') 
 @app.route("/planet_charts")
 @cache.cached(timeout=60)
@@ -315,9 +325,10 @@ def chart4():
 def chart5():
     planet_id = request.args.get('planet_id');
     load_from_files_zone(planet_id);
-    print(planet_data.planet_stats[planet_id][-1].zones[300])
-    #for x in planet_data.planet_stats[planet_id][-1].zones:
-    #    print(x[50])    
+    for x in planet_data.planet_stats[planet_id][-1].zones:
+        print(x[50])
+    zone_rotated = rotate(planet_data.planet_stats[planet_id][-1].zones,-90);
+    print(zone_rotated)
     #print(planet_data.planet_stats[planet_id][0].zones)
     legend = 'Player Data'
     #if it needs to update the data
