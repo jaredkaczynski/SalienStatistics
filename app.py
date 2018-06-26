@@ -136,17 +136,7 @@ def parse_json(response):
                 pass
             else:
                 temp_list.append(PlanetData(planet['state']['capture_progress'],planet['state']['current_players'],top_clans_local))
-        #iterate over 2nd last set of clans
-        for clan in planet_data.top_clans:
-                #if the clan wasn't top in this time slice
-                if(clan not in top_clans_global):
-                    try:
-                        #print(top_clans_global[clan['clan_info']['url']][1])
-                        top_clans_global[clan.clan_url][0] = clan.clan_name
-                    except:
-                        #Use previous count
-                        top_clans_global[clan.clan_url] = ["name",clan.clan_data[-1]]
-                        top_clans_global[clan.clan_url][0] = clan.clan_name
+        
         planet_data.top_clans.append(top_clans_global)
         rotate_data()
     except Exception as e:
