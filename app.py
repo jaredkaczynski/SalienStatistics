@@ -59,7 +59,7 @@ def load_from_web():
 def load_from_files():
     path = 'logger3/PlanetData1*.txt'
     files=glob.glob(path)
-    for file in sorted(files):
+    for file in sorted(files)[0::4]:
         #print(file)
         with open(file, 'r', encoding='utf-8') as f:
             parse_json(f.read())

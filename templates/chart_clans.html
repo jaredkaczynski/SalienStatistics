@@ -104,7 +104,7 @@
                 pointRadius: 1,
                 pointHitRadius: 10,
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
-				data:[{% for key1 in clan_info.clan_data %}{% if loop.index % 4 == 0 %}	{{key1}},{% endif %}{% endfor %}],
+				data:[{% for key1 in clan_info.clan_data %}{{key1}},{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
 			options: {

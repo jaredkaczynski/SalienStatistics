@@ -99,12 +99,12 @@
                 pointBorderWidth: 1,
                 pointHoverRadius: 5,
                 pointHoverBackgroundColor: "{{planet_data.colors.get(key)}}",
-                pointHoverBorderColor: "{{planet_data.colors.get(key)}}",
+                pointHoverBorderColor: "rgba(220,220,220,1)",
                 pointHoverBorderWidth: 2,
                 pointRadius: 1,
                 pointHitRadius: 10,
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
-				data:[{% for key1 in planet_data.planet_stats[key] %}{% if loop.index0 % 4 == 0 %}	{{key1.capture_progress}},{% endif %}{% endfor %}],
+				data:[{% for key1 in planet_data.planet_stats[key] %} {{key1.capture_progress}},{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
 			options: {
