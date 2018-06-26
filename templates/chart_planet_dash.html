@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Salien Summer 2018 Dashboard</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="static/css/bootstrap-dark.min.css" rel="stylesheet">
+	<!-- import plugin script -->
+    <script src='static/Chart.min.js'></script>
+    <!-- Custom styles for this template -->
+    <link href="static/dashboard.css" rel="stylesheet">
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-121388844-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-121388844-1');
+	</script>	
+	<style>
+	.navbar-default { margin-bottom: 0px; }
+	</style>
+  </head>
+
+  <body>
+
+  
+  
+	<nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top py-0">
+    <div class="d-flex w-50 order-0">
+        <a class="navbar-brand mr-1" href="#">Salien Dashboard</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mobile-menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+	<div class="navbar-text text-truncate mt-1 w-50 text-right order-1 order-md-last">
+	<a  href="https://github.com/jaredkaczynski/SalienStatistics">Github <span class="sr-only">Home</span></a>
+	</div>
+	</nav>
+
+    
+
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
+          <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="/planet_charts">Planet Progress Statistics</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/player_charts">Player Count Statistics<span class="sr-only">(current)</span></a>
+            </li>
+			<li class="nav-item">
+              <a class="nav-link" href="/clan_charts">Clan Zone Statistics</a>
+            </li>
+			<li class="nav-item">
+              <a class="nav-link active" href="/planet_live">Planet Live Data</a>
+            </li>
+          </ul>
+		  <ul class="nav nav-pills flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="hideCompleted">Hide/Show Completed</a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="#" id="hideInactive">Hide/Show Inactive</a>
+                    </li>
+                </ul>
+        </nav>
+		<main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
+          <h1>Planet Progress Statistics</h1>
+
+          <section class="row text-center placeholders">
+            <canvas id="PlanetChart" ></canvas>
+          </section>
+        </main>
+	
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+	<script>
+        // Global parameters:
+        // do not resize the chart canvas when its container does (keep at 600x400px)
+        Chart.defaults.global.responsive = true;
+		Chart.defaults.global.elements.line.fill = false;
+
+        // define the chart data
+        var chartDataB = {
+            labels: [{% for time in time_scale %}"{{time}}",{% endfor %}],
+            datasets: [{% for zone in zone_rotated %}
+			{
+                label: "{{planetname}}",
+                //fill: true,
+                lineTension: 0.1,
+				borderColor:"{{planet_data.clan_colors[loop.index%20]}}",
+                //borderColor: "rgba(75,192,192,1)",
+				//{{key}}
+				backgroundColor: "{{planet_data.clan_colors[loop.index%20]}}",
+				//backgroundColor: null,
+				borderWidth: 4,
+                borderCapStyle: 'butt',
+                borderDash: [],
+                borderDashOffset: 0.0,
+                borderJoinStyle: 'miter',
+                //pointBorderColor: "rgba(75,192,192,1)",
+                //pointBackgroundColor: "#fff",
+                pointBorderWidth: 1,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: "{{planet_data.clan_colors[loop.index%20]}}",
+                pointHoverBorderColor: "rgba(220,220,220,1)",
+                pointHoverBorderWidth: 2,
+                pointRadius: 1,
+                pointHitRadius: 10,
+				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
+				data:[{% for timestep in zone %} {{timestep[1]}},{% endfor %}],
+                spanGaps: false
+            },{% endfor %}],
+			options: {
+				maintainAspectRatio: false,
+				layout: {
+					padding: {
+					left: 100,
+					right: 100,
+					top: 200,
+					bottom: 200,
+            }
+        }
+    }
+        }
+
+        // get chart canvas
+        var ctx = document.getElementById("PlanetChart").getContext("2d");
+
+        // create the chart using the chart canvas
+        var PlanetChart = new Chart(ctx, {
+            type: 'line',
+            data: chartDataB,
+        });
+    </script>
+  </body>
+</html>
