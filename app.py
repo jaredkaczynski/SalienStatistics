@@ -73,6 +73,15 @@ def get_longest_list():
     except ValueError:
         print("First Run no List Length")    
         return 0
+        
+def get_longest_list_clans():
+    global planet_data
+    try:
+        return len(planet_data.top_clans)
+    except ValueError:
+        print("First Run no List Length")    
+        return 0       
+        
 #take object in form of, time[clan[data at time]] convert to clan[clan name/id[clan data all]]
 def rotate_data():
     global planet_data
@@ -112,12 +121,20 @@ def parse_json(response):
                 for i in range(0,int(longest_list)):
                     #print("Filling nulls")
                     temp_list.append(PlanetData('null','null', []))
-
+            
             #global has to be a single sorted list of all the top clans
             for clan in planet['top_clans']:
                 #if the clan already exists, add to the existing count
                 #apparently they sometimes returned bad data
                 if("url" in clan['clan_info']):
+                    #if(clan not in planet_data.top_clans):
+                    #probably easier to do this in rotate function
+                    #new clan, pad the data 
+                    #    longest_clan = get_longest_list_clans()
+                    #    top_clans_global[clan['clan_info']['url']] = [clan['clan_info']['name'],'0']
+                    #    for i in range(1, int(longest_clan)):
+                    #        top_clans_global[clan['clan_info']['url']][1].append("0") 
+                                
                     try:
                         #print(top_clans_global[clan['clan_info']['url']][1])
                         top_clans_global[clan['clan_info']['url']][0] = clan['clan_info']['name']
@@ -136,11 +153,17 @@ def parse_json(response):
                 pass
             else:
                 temp_list.append(PlanetData(planet['state']['capture_progress'],planet['state']['current_players'],top_clans_local))
+        #iterate over stored clan data if exists
+        if(planet_data.top_clans and planet_data.top_clans[0]):
+            for clan_name,clan_data in planet_data.top_clans[0].items():
+                    #if the clan wasn't top in this time slice
+                    if(clan_name not in top_clans_global):
+                            top_clans_global[clan_name] = [clan_data[0],clan_data[1]]
+    except:
+        pass
+    planet_data.top_clans.append(top_clans_global)
+    rotate_data()
 
-        planet_data.top_clans.append(top_clans_global)
-        rotate_data()
-    except Exception as e:
-        print(e) 
     #If the planet is finished, set the end to null
     longest_list = get_longest_list()
     for planet_id,planet_stats in planet_data.planet_stats.items():
@@ -219,10 +242,12 @@ def chart3():
 def chart4():
     legend = 'Player Data'
     #print(planet_data.top_clans_rotated)
-    for planetname, data in planet_data.top_clans_rotated.items():
-        print(planetname)
-        print(data.clan_data[-1])
+    #for planetname, data in planet_data.top_clans_rotated.items():
+    #    print(planetname + "clan stuff")
+    #    print(data.clan_data[-1])
     newA = dict(sorted(planet_data.top_clans_rotated.items(), key=lambda e: e[-1].clan_data, reverse=True)[:20])
+    print("new a")
+    print(newA)
     planet_data.top_clans_rotated = newA
     return render_template('chart_clans.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
     
