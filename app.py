@@ -29,7 +29,8 @@ class DataObject:
         self.dts = []
         self.colors = dict()
         self.clan_colors = ['#3366CC','#DC3912','#FF9900','#109618','#990099','#3B3EAC','#0099C6','#DD4477','#66AA00','#B82E2E','#316395','#994499','#22AA99','#AAAA11','#6633CC','#E67300','#8B0707','#329262','#5574A6','#3B3EAC']
-        #                        top_clans_global[clan['clan_info']['url']][1] = clan["num_zones_controled"];
+        #Add position 0 value as diffiutlies are 1 indexed
+        self.zone_colors = ["","#5cb85c","#f0ad4e","#d9534f"]
         self.top_clans = []
         self.top_clans_rotated = []
         self.zone_data = []
@@ -92,12 +93,12 @@ def load_from_files_zone(zone):
         foldername = file.split("\\")[1]
         foldername = foldername.replace('',":")
         foldername = "2018 " + foldername
-        print(foldername)
+        #print(foldername)
         
         file_datetime = (datetime.strptime(foldername,"%Y %j-%H:%M"))
 
         filetime = file_datetime.timestamp()
-        print(filetime)       
+        #print(filetime)       
         if((filetime+3600) > planet_data.time_data[zone][0]):
             with open(file, 'r', encoding='utf-8') as f:
                 parse_json_planet(f.read())
@@ -167,7 +168,7 @@ def parse_json_planets(response):
                     temp_list.append(PlanetData('null','null', []))                  
             try:
                 planet_data.time_data[planet['id']] = [planet['state']['activation_time'],0]
-                print(planet['state']['activation_time'])
+                #print(planet['state']['activation_time'])
                 #temp_list.activation_time = planet['state']['activation_time']
             except:
                 pass
@@ -250,7 +251,7 @@ def parse_json_planet(response):
             else:
                 zone_value = zone['capture_progress']
             #append the data to the end of the list
-            temp_zone_list.append([zone['zone_position'],zone_value]) 
+            temp_zone_list.append([zone['zone_position'],zone_value,zone['difficulty']]) 
         temp_list[-1].zones.append(temp_zone_list)
         #print(temp_list)
 
