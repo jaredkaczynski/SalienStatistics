@@ -41,7 +41,6 @@
 		    max-width: 400px!important;
 			width:auto;
 		}
-
 		
 	</style>
 </head>
@@ -146,7 +145,7 @@
 			listitems.sort(function(a, b) {
 				var compA = $(a).attr('capture_progress');
 				var compB = $(b).attr('capture_progress');
-				if(isNaN(compA) && isNaN(compB) || compA == "100" && compB == "100"){
+				if(isNaN(compA) && isNaN(compB) || compA == "100" && compB == "100" || compA == "0" && compB == "0"){
 					if(parseInt($(a).attr('id')) < parseInt($(b).attr('id'))){
 						return -1;
 					} else if(parseInt($(a).attr('id')) > parseInt($(b).attr('id'))){
@@ -242,16 +241,10 @@
 				  $(this).removeClass("out")
 				  $(this).popover('hide');
 				} else {
+				
 					$(this).addClass("out")
 				  	parseZone($(this).parent().attr('id'),this)
 				}
-				 //$(this).data('bs.popover').options.content = parseZone($(this).parent().attr('id'));
-				 //$(this).attr('data-content',parseZone($(this).parent().attr('id')));
-				 //console.log($(this).parent().attr('id'));
-				 //console.log(this.attributes.value )
-                 
-				 //$(this).attr("data-content",
-				 //$(".popover").css("left", parseInt($(".popover").css("left")) + 25);
 
               });
 			  }, 100);
@@ -398,7 +391,7 @@
 			var mylist = $('#planet-append');
 			var listitems = mylist.children('div').get();
 				listitems.forEach(function(planet) {
-					if (isNaN($(planet).attr('capture_progress'))){
+					if (isNaN($(planet).attr('capture_progress')) || $(planet).attr('capture_progress') == "0"){
 						$(planet).toggle();
 					}
                 });
