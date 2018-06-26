@@ -15,6 +15,9 @@ import requests
 import json
 import atexit
 
+import os
+sorted(glob.glob('*.html'), key=os.path.getmtime)
+
  
 app = Flask(__name__)
 # For more configuration options, check out the documentation
@@ -30,13 +33,21 @@ class DataObject:
         #                        top_clans_global[clan['clan_info']['url']][1] = clan["num_zones_controled"];
         self.top_clans = []
         self.top_clans_rotated = []
-        #cmap(np.linspace(0, 1, 5))
+        self.zone_data = []
+
 class PlanetData():
-    def __init__(self,capture_progress,current_players,top_clans):
+    def __init__(self,capture_progress,current_players,top_clans=[],zones=[]):
         self.capture_progress = capture_progress
         self.current_players = current_players
         self.top_clans = top_clans
-
+        self.zones = zones
+        
+class ZoneData():
+    def __init__(self,planet_id):
+        self.planet_id = planet_id
+        self.zone_data = 0.0
+        
+        
 class ClanData():
     def __init__(self,clan_name,clan_url):
         self.clan_name = clan_name
@@ -53,16 +64,37 @@ def datetime_range(start, end, delta):
         current += delta 
 
 def load_from_web():
-    response = requests.get("https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/&language=english")
-    parse_json(response.content)
-        
+    response = requests.get("https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/")
+    parse_json_planets(response.content)
+
+def get_zone_json(zone):
+    response = requests.get("https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id=" + zone)
+    parse_json_planet(response.content)
+
+
+    
 def load_from_files():
     path = 'logger3/PlanetData1*.txt'
     files=glob.glob(path)
     for file in sorted(files)[0::4]:
         #print(file)
         with open(file, 'r', encoding='utf-8') as f:
-            parse_json(f.read())
+            parse_json_planets(f.read())
+            
+def load_from_files_zone(zone):
+    path = 'zonelog/**/' + zone + '.html'
+    files=glob.glob(path)
+    for file in files[0::4]:
+        #print(file)
+        with open(file, 'r', encoding='utf-8') as f:
+            parse_json_planet(f.read())
+#for each planet, make a zone object and insert zone completion % in it
+#at end, insert all 
+def get_zone_count_at_time():
+
+    for i in range(1,47):
+        load_from_files_zone(i)
+    pass
 def get_longest_list():
     global planet_data
     try:
@@ -96,7 +128,7 @@ def rotate_data():
     planet_data.top_clans_rotated = rotated_data
     
     #print(planet_data.top_clans_rotated[0])
-def parse_json(response):
+def parse_json_planets(response):
     global planet_data
 
     #store into planet_data_object
@@ -126,15 +158,7 @@ def parse_json(response):
             for clan in planet['top_clans']:
                 #if the clan already exists, add to the existing count
                 #apparently they sometimes returned bad data
-                if("url" in clan['clan_info']):
-                    #if(clan not in planet_data.top_clans):
-                    #probably easier to do this in rotate function
-                    #new clan, pad the data 
-                    #    longest_clan = get_longest_list_clans()
-                    #    top_clans_global[clan['clan_info']['url']] = [clan['clan_info']['name'],'0']
-                    #    for i in range(1, int(longest_clan)):
-                    #        top_clans_global[clan['clan_info']['url']][1].append("0") 
-                                
+                if("url" in clan['clan_info']):      
                     try:
                         #print(top_clans_global[clan['clan_info']['url']][1])
                         top_clans_global[clan['clan_info']['url']][0] = clan['clan_info']['name']
@@ -171,6 +195,39 @@ def parse_json(response):
             planet_stats.append(PlanetData('null','null',None))
     #print(planet_data.top_clans[-1])
 
+def parse_json_planet(response):
+    global planet_data
+
+    #store into planet_data_object
+    longest_list = get_longest_list()
+    planet_json = None
+    top_clans_global = {}
+    #print(type(planet_data.planet_stats['2']))
+    try:
+        planet_json = json.loads(response)
+    except:
+        pass
+    try:
+        #Should get the single planet in the json
+        for planet in planet_json['response']['planets']: 
+            #grab the planet_data zones object which is a list where each element is a time slice
+            temp_list = planet_data.planet_stats[planet['id']]
+            print(temp_list)
+            #make a temp zone data object which holds a list of zone data for a moment in time
+            temp_zone = ZoneData(planet['id'])
+            #for each zone on the current planet json, ordered from 0-T 
+            for zone in planet['zones']:
+                zone_value = 0;
+                if(zone['captured'] == "true" or zone['captured'] == True):
+                    zone_value = 1;
+                else:
+                    zone_value = zone['capture_progress']
+                temp_zone.zone_data = zone_value
+            temp_list.zones.append(int(zone['zone_position']),temp_zone) 
+            
+    except:
+        pass
+    
 def update_time_scale():
     global planet_data
     #get new labels for time axis
@@ -229,7 +286,7 @@ def chart2():
     legend = 'Player Data'
     #if it needs to update the data
     return render_template('chart_players.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
-    
+
 @app.route("/planet_live")
 @cache.cached(timeout=30)
 def chart3():
@@ -246,10 +303,17 @@ def chart4():
     #    print(planetname + "clan stuff")
     #    print(data.clan_data[-1])
     newA = dict(sorted(planet_data.top_clans_rotated.items(), key=lambda e: e[-1].clan_data, reverse=True)[:20])
-    print("new a")
-    print(newA)
     planet_data.top_clans_rotated = newA
     return render_template('chart_clans.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
+
+@app.route("/view_planet")
+@cache.cached(timeout=1)
+def chart5():
+    planet_id = request.args.get('planet_id');
+    load_from_files_zone(planet_id);
+    legend = 'Player Data'
+    #if it needs to update the data
+    return render_template('chart_planet_data.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)    
     
 def setup_scheduler():
     scheduler = BackgroundScheduler()
