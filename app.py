@@ -15,6 +15,7 @@ import json
 import atexit
 
 import os
+
 sorted(glob.glob('*.html'), key=os.path.getmtime)
 
  
@@ -89,7 +90,7 @@ def load_from_files_zone(zone):
     if(planet_data.planet_stats[zone][-1].zones):
         planet_data.planet_stats[zone][-1].zones = []
     
-    for file in files[0::4]:
+    for file in sorted(files)[0::4]:
         foldername=""
         try:
             foldername = file.split("\\")[1]
@@ -253,6 +254,7 @@ def parse_json_planet(response):
             elif("capture_progress" not in zone):
                 zone_value = 0
             else:
+                print(zone['capture_progress'])
                 zone_value = zone['capture_progress']
             #append the data to the end of the list
             temp_zone_list.append([zone['zone_position'],zone_value,zone['difficulty']]) 
