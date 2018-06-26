@@ -332,7 +332,7 @@ def chart5():
     #print(planet_data.planet_stats[planet_id][0].zones)
     legend = 'Player Data'
     #if it needs to update the data
-    return render_template('chart_planet_data.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)    
+    return render_template('chart_planet_dash.html', zone_rotated=zone_rotated,planet_names=planet_data.planet_names,planet_data=planet_data)    
     
 def setup_scheduler():
     scheduler = BackgroundScheduler()
