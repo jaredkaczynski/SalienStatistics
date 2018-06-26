@@ -91,15 +91,14 @@ def load_from_files_zone(zone):
     
     for file in files[0::4]:
         foldername = file.split("\\")[1]
-        foldername = foldername.replace('',":")
         foldername = "2018 " + foldername
         #print(foldername)
         
-        file_datetime = (datetime.strptime(foldername,"%Y %j-%H:%M"))
+        file_datetime = (datetime.strptime(foldername,"%Y %j-%H%M"))
 
         filetime = file_datetime.timestamp()
         #print(filetime)       
-        if((filetime+3600) > planet_data.time_data[zone][0]):
+        if((filetime+1800) > planet_data.time_data[zone][0]):
             with open(file, 'r', encoding='utf-8') as f:
                 parse_json_planet(f.read())
 #for each planet, make a zone object and insert zone completion % in it
@@ -244,10 +243,7 @@ def parse_json_planet(response):
         for idx, zone in enumerate(planet['zones']):
             zone_value = 0;
             if(zone['captured'] == "true" or zone['captured'] == True):
-                if zone['capture_progress'] < 1:
-                    zone_value = 1;
-                else:
-                    zone_value = "null"
+                zone_value = "null"
             elif("capture_progress" not in zone):
                 zone_value = 0
             else:
@@ -364,7 +360,6 @@ def chart5():
     #print(planet_data.planet_stats[planet_id][0].zones)
     legend = 'Player Data'
     timescale = custom_time_scale(planet_data.time_data[planet_id][0],planet_data.time_data[planet_id][1])
-    print(timescale)
     #if it needs to update the data
     return render_template('chart_planet_dash.html', zone_rotated=zone_rotated,planet_data=planet_data,time_scale=timescale)    
     
