@@ -41,7 +41,20 @@
 		    max-width: 400px!important;
 			width:auto;
 		}
-		
+		.difficulty-cell{
+			width:32px;
+			height:32px;
+			text-align: center;			
+		}
+		.difficulty-1 {
+			background-color: #5cb85c;
+		}
+		.difficulty-2 {
+			background-color: #f0ad4e;
+		}
+		.difficulty-3 {
+			background-color: #d9534f;
+		}
 	</style>
 </head>
 
@@ -184,8 +197,8 @@
 						tr = table.appendChild(document.createElement('tr')); // add a new row
 					}
 					td = tr.appendChild(document.createElement('td'));
-					console.log(obj[i]);
 					if(obj[i].captured == true){
+
 						var DOM_link = document.createElement("a");
 						DOM_link.href = "https://steamcommunity.com/groups/" + obj[i].leader.url;
 						var DOM_img = document.createElement("img");
@@ -194,6 +207,7 @@
 						td.appendChild(DOM_link);
 					} else {
 						td.innerHTML = obj[i].difficulty;
+						$(td).addClass("difficulty-" + obj[i].difficulty + " difficulty-cell")						
 					}
 				}
 				//document.getElementById('container').appendChild(table);
