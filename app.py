@@ -8,6 +8,7 @@ from flask_caching import Cache
 import collections as ct
 import dill as pickle
 
+import locale
 import spectra
 import glob
 import requests
@@ -254,7 +255,7 @@ def parse_json_planet(response):
             elif("capture_progress" not in zone):
                 zone_value = 0
             else:
-                print(zone['capture_progress'])
+                #print(zone['capture_progress'])
                 zone_value = zone['capture_progress']
             #append the data to the end of the list
             temp_zone_list.append([zone['zone_position'],zone_value,zone['difficulty']]) 
@@ -355,9 +356,14 @@ def custom_time_scale(start, end):
            datetime_range(datetime.fromtimestamp(int(start)), datetime.fromtimestamp(int(end)), 
            timedelta(minutes=20))]  
     return(dts)    
-        
+    
+def make_cache_key(*args, **kwargs):
+    path = request.path
+    args = str(hash(frozenset(request.args.items())))
+    return (path + args).encode('utf-8')
+    
 @app.route("/view_planet")
-@cache.cached(timeout=1)
+@cache.cached(timeout=50, key_prefix=make_cache_key)
 def chart5():
     planet_id = request.args.get('planet_id');
     load_from_files_zone(planet_id);
