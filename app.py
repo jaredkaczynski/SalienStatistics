@@ -33,13 +33,14 @@ class DataObject:
         self.top_clans = []
         self.top_clans_rotated = []
         self.zone_data = []
-
+        self.time_data = dict()
 class PlanetData():
     def __init__(self,capture_progress,current_players,top_clans=[],zones=[]):
         self.capture_progress = capture_progress
         self.current_players = current_players
         self.top_clans = top_clans
         self.zones = zones
+        
         
 class ZoneData():
     def __init__(self,planet_id):
@@ -83,10 +84,23 @@ def load_from_files():
 def load_from_files_zone(zone):
     path = 'zonelog/**/' + zone + '.html'
     files=glob.glob(path)
+    #delete data if it's already out and the cache is old
+    if(planet_data.planet_stats[zone][-1].zones):
+        planet_data.planet_stats[zone][-1].zones = []
+    
     for file in files[0::4]:
-        #print(file)
-        with open(file, 'r', encoding='utf-8') as f:
-            parse_json_planet(f.read())
+        foldername = file.split("\\")[1]
+        foldername = foldername.replace('',":")
+        foldername = "2018 " + foldername
+        print(foldername)
+        
+        file_datetime = (datetime.strptime(foldername,"%Y %j-%H:%M"))
+
+        filetime = file_datetime.timestamp()
+        print(filetime)       
+        if((filetime+3600) > planet_data.time_data[zone][0]):
+            with open(file, 'r', encoding='utf-8') as f:
+                parse_json_planet(f.read())
 #for each planet, make a zone object and insert zone completion % in it
 #at end, insert all 
 def get_zone_count_at_time():
@@ -150,8 +164,18 @@ def parse_json_planets(response):
                 #prepend nulls to list of data
                 for i in range(0,int(longest_list)):
                     #print("Filling nulls")
-                    temp_list.append(PlanetData('null','null', []))
-            
+                    temp_list.append(PlanetData('null','null', []))                  
+            try:
+                planet_data.time_data[planet['id']] = [planet['state']['activation_time'],0]
+                print(planet['state']['activation_time'])
+                #temp_list.activation_time = planet['state']['activation_time']
+            except:
+                pass
+            try:
+                planet_data.time_data[planet['id']][1] = planet['state']['capture_time']
+            except:
+                planet_data.time_data[planet['id']][1] = datetime.utcnow().timestamp()
+                
             #global has to be a single sorted list of all the top clans
             for clan in planet['top_clans']:
                 #if the clan already exists, add to the existing count
@@ -206,31 +230,30 @@ def parse_json_planet(response):
     except:
         print("Bad HTML")
         pass
-    try:
-        #Should get the single planet in the json
-        for planet in planet_json['response']['planets']: 
-            #grab the planet_data zones object which is a list where each element is a time slice
-            temp_list = planet_data.planet_stats[planet['id']]
-            #print("temp list")
-            #print(temp_list)
-            #make a temp zone data object which holds a list of zone data for a moment in time
-            temp_zone_list = []
-            #for each zone on the current planet json, ordered from 0-T 
-            for zone in planet['zones']:
-                zone_value = 0;
-                if(zone['captured'] == "true" or zone['captured'] == True):
-                    zone_value = 1;
-                elif("capture_progress" not in zone):
-                    zone_value = 0
-                else:
-                    zone_value = zone['capture_progress']
-                #append the data to the end of the list
-                temp_zone_list.append([zone['zone_position'],zone_value]) 
-            temp_list[-1].zones.append(temp_zone_list)
-            #print(temp_list)
-    except:
-        print("exception")
-        pass
+
+    #Should get the single planet in the json
+    for planet in planet_json['response']['planets']: 
+        #grab the planet_data zones object which is a list where each element is a time slice
+        temp_list = planet_data.planet_stats[planet['id']]
+        #print("temp list")
+        #print(temp_list)
+        #make a temp zone data object which holds a list of zone data for a moment in time
+        temp_zone_list = []
+        #for each zone on the current planet json, ordered from 0-T 
+        for idx, zone in enumerate(planet['zones']):
+            zone_value = 0;
+            if(zone['captured'] == "true" or zone['captured'] == True):
+                zone_value = 1;
+
+            elif("capture_progress" not in zone):
+                zone_value = 0
+            else:
+                zone_value = zone['capture_progress']
+            #append the data to the end of the list
+            temp_zone_list.append([zone['zone_position'],zone_value]) 
+        temp_list[-1].zones.append(temp_zone_list)
+        #print(temp_list)
+
     
 def update_time_scale():
     global planet_data
@@ -320,19 +343,27 @@ def chart4():
     planet_data.top_clans_rotated = newA
     return render_template('chart_clans.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
 
+def custom_time_scale(start, end):
+    dts = [dt.strftime('%d T%H:%M') for dt in  
+           datetime_range(datetime.fromtimestamp(int(start)), datetime.fromtimestamp(int(end)), 
+           timedelta(minutes=20))]  
+    return(dts)    
+        
 @app.route("/view_planet")
 @cache.cached(timeout=1)
 def chart5():
     planet_id = request.args.get('planet_id');
     load_from_files_zone(planet_id);
-    for x in planet_data.planet_stats[planet_id][-1].zones:
-        print(x[50])
+    print(planet_data.time_data[planet_id][1])
+    print(planet_data.time_data[planet_id][0])
+    #custom_time_scale(planet_data.planet_stats[planet_id][-1].activation_time,capture_time)
     zone_rotated = rotate(planet_data.planet_stats[planet_id][-1].zones,-90);
-    print(zone_rotated)
     #print(planet_data.planet_stats[planet_id][0].zones)
     legend = 'Player Data'
+    timescale = custom_time_scale(planet_data.time_data[planet_id][0],planet_data.time_data[planet_id][1])
+    print(timescale)
     #if it needs to update the data
-    return render_template('chart_planet_dash.html', zone_rotated=zone_rotated,planet_names=planet_data.planet_names,planet_data=planet_data)    
+    return render_template('chart_planet_dash.html', zone_rotated=zone_rotated,planet_data=planet_data,time_scale=timescale)    
     
 def setup_scheduler():
     scheduler = BackgroundScheduler()

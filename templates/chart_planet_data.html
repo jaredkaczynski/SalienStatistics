@@ -123,6 +123,9 @@
 			<a href="#" style="float: left;position: relative;" tabindex="0" class="btn btn" role="button" data-toggle="popover" data-trigger="focus" data-content="<form><input type='text'/></form>">
 				Show Zones
 			</a>
+			<a href="/view_planet?planet_id=${id}" style="float: right;position: relative;" tabindex="0" class="btn btn" role="button">
+				More Info
+			</a>
 			<br><br>
 			<a "href="https://store.steampowered.com/prizes/view/${url}">
 				<img src="https://steamcdn-a.akamaihd.net/steamcommunity/public/assets/saliengame/planets/${img}" width="200" height="200" class="img-fluid rounded-circle" alt="Generic placeholder thumbnail">
@@ -133,7 +136,8 @@
 				  <div class="progress-bar bg-success" style="width: ${capture_progress}%;font-size:150%;height:30px" role="progressbar" aria-valuenow="${capture_progress}" aria-valuemin="0" aria-valuemax="100">${capture_progress}%</div>
 				</div>
 				<br><br>
-		</div>`;
+		</div>`
+		;
 						  //<span class="progress-value">${capture_progress}%</span>	
         $.ajax({
             crossOrigin: true,
