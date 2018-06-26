@@ -193,14 +193,14 @@ def update_data():
 
     
 @app.route("/planet_charts")
-@cache.cached(timeout=300)
+@cache.cached(timeout=60)
 def chart1():
     legend = 'Capture Data'
     #if it needs to update the data
     return render_template('chart.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
  
 @app.route("/player_charts")
-@cache.cached(timeout=300)
+@cache.cached(timeout=60)
 def chart2():
     legend = 'Player Data'
     #if it needs to update the data
@@ -214,7 +214,7 @@ def chart3():
     return render_template('chart_planet_data.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
     
 @app.route("/clan_charts")
-@cache.cached(timeout=300)
+@cache.cached(timeout=60)
 def chart4():
     legend = 'Player Data'
     #if it needs to update the data

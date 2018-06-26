@@ -30,13 +30,19 @@
 			-webkit-user-select: none;
 			-ms-user-select: none;
 		}
-		.popover.bs-tether-element-attached-top::after,
-		.popover.bs-tether-element-attached-top::before{
-			left: 10%;
+		.popover .arrow {
+			left: 90px !important; /* or 45% etc */
 		}
 		.popover{
 			data-offset="-50%";
+			left: +10%!important;			
 		}
+		.popover {
+		    max-width: 400px!important;
+			width:auto;
+		}
+
+		
 	</style>
 </head>
 
@@ -170,7 +176,31 @@
             url: "http://185.121.25.45:5001/https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id="+zone,
             type: "GET",
             success: function(data) {
-				$(element).attr('data-content',"<br><br>");
+				obj = data.response.planets[0].zones;
+				
+				var table = document.createElement('table'), tr, td, i;
+				table.className = "table table-bordered";
+				for (i = 0; i < obj.length; i++) { 
+					if (i % 12 == 0) { // every 22nd cell (including the first)
+						tr = table.appendChild(document.createElement('tr')); // add a new row
+					}
+					td = tr.appendChild(document.createElement('td'));
+					console.log(obj[i]);
+					if(obj[i].captured == true){
+						var DOM_link = document.createElement("a");
+						DOM_link.href = "https://steamcommunity.com/groups/" + obj[i].leader.url;
+						var DOM_img = document.createElement("img");
+						DOM_img.src = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars//e3/" + obj[i].leader.avatar + ".jpg";
+						DOM_link.appendChild(DOM_img);
+						td.appendChild(DOM_link);
+					} else {
+						td.innerHTML = obj[i].difficulty;
+					}
+				}
+				//document.getElementById('container').appendChild(table);
+				
+			
+				$(element).attr('data-content',table.innerHTML);
 				$(element).popover('show');
                 //var obj = JSON.parse(data.contents);
 				console.log(data);
@@ -207,10 +237,12 @@
                  e.preventDefault();
                  // Exibe o popover.
 				console.log(this.attributes)
-				if(false){
+				if($(this).hasClass("out")){
 				  // popover is visable
+				  $(this).removeClass("out")
 				  $(this).popover('hide');
 				} else {
+					$(this).addClass("out")
 				  	parseZone($(this).parent().attr('id'),this)
 				}
 				 //$(this).data('bs.popover').options.content = parseZone($(this).parent().attr('id'));
