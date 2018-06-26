@@ -244,8 +244,10 @@ def parse_json_planet(response):
         for idx, zone in enumerate(planet['zones']):
             zone_value = 0;
             if(zone['captured'] == "true" or zone['captured'] == True):
-                zone_value = 1;
-
+                if zone['capture_progress'] < 1:
+                    zone_value = 1;
+                else:
+                    zone_value = "null"
             elif("capture_progress" not in zone):
                 zone_value = 0
             else:
