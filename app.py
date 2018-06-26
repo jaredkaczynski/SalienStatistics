@@ -90,7 +90,11 @@ def load_from_files_zone(zone):
         planet_data.planet_stats[zone][-1].zones = []
     
     for file in files[0::4]:
-        foldername = file.split("\\")[1]
+        foldername=""
+        try:
+            foldername = file.split("\\")[1]
+        except:
+            foldername = file.split("/")[1]
         foldername = "2018 " + foldername
         #print(foldername)
         
