@@ -1,5 +1,4 @@
-from flask import Flask
-from flask import render_template
+from flask import Flask, request, render_template
 from time import time
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -84,14 +83,13 @@ def load_from_files():
 def load_from_files_zone(zone):
     path = 'zonelog/**/' + zone + '.html'
     files=glob.glob(path)
-    for file in files[0::4]:
+    for file in files[0::1]:
         #print(file)
         with open(file, 'r', encoding='utf-8') as f:
             parse_json_planet(f.read())
 #for each planet, make a zone object and insert zone completion % in it
 #at end, insert all 
 def get_zone_count_at_time():
-
     for i in range(1,47):
         load_from_files_zone(i)
     pass
@@ -206,26 +204,32 @@ def parse_json_planet(response):
     try:
         planet_json = json.loads(response)
     except:
+        print("Bad HTML")
         pass
     try:
         #Should get the single planet in the json
         for planet in planet_json['response']['planets']: 
             #grab the planet_data zones object which is a list where each element is a time slice
             temp_list = planet_data.planet_stats[planet['id']]
-            print(temp_list)
+            #print("temp list")
+            #print(temp_list)
             #make a temp zone data object which holds a list of zone data for a moment in time
-            temp_zone = ZoneData(planet['id'])
+            temp_zone_list = []
             #for each zone on the current planet json, ordered from 0-T 
             for zone in planet['zones']:
                 zone_value = 0;
                 if(zone['captured'] == "true" or zone['captured'] == True):
                     zone_value = 1;
+                elif("capture_progress" not in zone):
+                    zone_value = 0
                 else:
                     zone_value = zone['capture_progress']
-                temp_zone.zone_data = zone_value
-            temp_list.zones.append(int(zone['zone_position']),temp_zone) 
-            
+                #append the data to the end of the list
+                temp_zone_list.append([zone['zone_position'],zone_value]) 
+            temp_list[-1].zones.append(temp_zone_list)
+            #print(temp_list)
     except:
+        print("exception")
         pass
     
 def update_time_scale():
@@ -311,6 +315,10 @@ def chart4():
 def chart5():
     planet_id = request.args.get('planet_id');
     load_from_files_zone(planet_id);
+    print(planet_data.planet_stats[planet_id][-1].zones[300])
+    #for x in planet_data.planet_stats[planet_id][-1].zones:
+    #    print(x[50])    
+    #print(planet_data.planet_stats[planet_id][0].zones)
     legend = 'Player Data'
     #if it needs to update the data
     return render_template('chart_planet_data.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)    
