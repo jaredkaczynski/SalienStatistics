@@ -136,7 +136,7 @@ def parse_json(response):
                 pass
             else:
                 temp_list.append(PlanetData(planet['state']['capture_progress'],planet['state']['current_players'],top_clans_local))
-        
+
         planet_data.top_clans.append(top_clans_global)
         rotate_data()
     except Exception as e:
@@ -192,7 +192,7 @@ def update_data():
     update_time_scale()
     update_colors()
 
-    
+@app.route('/') 
 @app.route("/planet_charts")
 @cache.cached(timeout=60)
 def chart1():
