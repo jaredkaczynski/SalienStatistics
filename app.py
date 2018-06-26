@@ -130,12 +130,23 @@ def parse_json(response):
                         top_clans_global[clan['clan_info']['url']][1] += clan["num_zones_controled"]
                     #doesn't exist, make it's data point
                     else:
-                        top_clans_global[clan['clan_info']['url']][1] = clan["num_zones_controled"];
+                        top_clans_global[clan['clan_info']['url']][1] = clan["num_zones_controled"];                        
             #if it's already got to 100% don't log it
             if(temp_list and (temp_list[-1].capture_progress == '1' or (temp_list[-1].capture_progress == 'null' and temp_list[-2].capture_progress != 'null'))):
                 pass
             else:
                 temp_list.append(PlanetData(planet['state']['capture_progress'],planet['state']['current_players'],top_clans_local))
+        #iterate over 2nd last set of clans
+        for clan in planet_data.top_clans:
+                #if the clan wasn't top in this time slice
+                if(clan not in top_clans_global):
+                    try:
+                        #print(top_clans_global[clan['clan_info']['url']][1])
+                        top_clans_global[clan.clan_url][0] = clan.clan_name
+                    except:
+                        #Use previous count
+                        top_clans_global[clan.clan_url] = ["name",clan.clan_data[-1]]
+                        top_clans_global[clan.clan_url][0] = clan.clan_name
         planet_data.top_clans.append(top_clans_global)
         rotate_data()
     except Exception as e:
@@ -217,20 +228,10 @@ def chart3():
 @cache.cached(timeout=60)
 def chart4():
     legend = 'Player Data'
-    #if it needs to update the data
-    #for clan, clan_data_object in planet_data.top_clans_rotated.items():
-        #print(clan_data_object.clan_data)
-        #if(clan not in temp_top_clans_rotated):
-        #    temp_top_clans_rotated[clan] = ClanData(clan_data_object.clan_name,clan_data_object.clan_url)
-        #temp_top_clans_rotated[clan].clan_data = (clan_data_object.clan_data)[:20]
-        #temp_top_clans_rotated[clan].clan_data.clan_name = clan_data_object.clan_name
-        #temp_top_clans_rotated[clan].clan_data.url = clan_data_object.url
-    
-    #for k, v in planet_data.top_clans_rotated.items():
-    #    if(len(planet_data.top_clans_rotated) > 20):
-    #        v.pop()
-    #    else:
-    #        break
+    #print(planet_data.top_clans_rotated)
+    for planetname, data in planet_data.top_clans_rotated.items():
+        print(planetname)
+        print(data.clan_data[-1])
     newA = dict(sorted(planet_data.top_clans_rotated.items(), key=lambda e: e[-1].clan_data, reverse=True)[:20])
     planet_data.top_clans_rotated = newA
     return render_template('chart_clans.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
@@ -266,7 +267,7 @@ def main():
     #print(loadData().planet_stats)
     setup_scheduler()
     update_data()
-    app.run(host="0.0.0.0",port=8001)
+    app.run(host="0.0.0.0",port=80)
 main()
 
 # Shut down the scheduler when exiting the app
