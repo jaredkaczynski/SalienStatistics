@@ -377,7 +377,6 @@ def chart5():
     timescale = custom_time_scale(planet_data.time_data[planet_id][0],planet_data.time_data[planet_id][1] + 1800)
     #if it needs to update the data
     return render_template('chart_planet_dash.html', zone_rotated=zone_rotated,planet_data=planet_data,time_scale=timescale)    
-    
 def setup_scheduler():
     scheduler = BackgroundScheduler()
     scheduler.start()

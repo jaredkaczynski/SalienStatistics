@@ -70,7 +70,7 @@
 			</button>
 		</div>
 		<div class="navbar-text text-truncate mt-1 w-50 text-right order-1 order-md-last">
-		<a  href="https://github.com/jaredkaczynski/SalienStatistics">Github <span class="sr-only">Home</span></a>
+			<a  href="https://github.com/jaredkaczynski/SalienStatistics">Github <span class="sr-only">Home</span></a>
 		</div>
 	</nav>
 
@@ -199,7 +199,7 @@
             type: "GET",
             success: function(data) {
 				obj = data.response.planets[0].zones;
-				
+				console.log(zone)
 				var table = document.createElement('table'), tr, td, i;
 				table.className = "table table-bordered";
 				for (i = 0; i < obj.length; i++) { 
@@ -219,6 +219,7 @@
 						td.innerHTML = obj[i].difficulty;
 						$(td).addClass("difficulty-" + obj[i].difficulty + " difficulty-cell")						
 					}
+					td.title = parseInt(obj[i].capture_progress*100) + "% \n Leader: " + obj[i].leader.name;
 				}
 				//document.getElementById('container').appendChild(table);
 				
