@@ -64,14 +64,6 @@
               <a class="nav-link active" href="/planet_live">Planet Live Data</a>
             </li>
           </ul>
-		  <ul class="nav nav-pills flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="hideCompleted">Hide/Show Completed</a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link" href="#" id="hideInactive">Hide/Show Inactive</a>
-                    </li>
-                </ul>
         </nav>
 		<main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
           <h1>Planet Progress Statistics Per Zone</h1>
@@ -122,21 +114,16 @@
                 pointHoverBorderWidth: 2,
                 pointRadius: 1,
                 pointHitRadius: 10,
+				options: {
+					legend: {
+						display: false
+					},
+				},
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
 				data:[{% for timestep in zone %} {{timestep[1]}},{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
-			options: {
-				maintainAspectRatio: false,
-				layout: {
-					padding: {
-					left: 100,
-					right: 100,
-					top: 200,
-					bottom: 200,
-            }
-        }
-    }
+			
         }
 
         // get chart canvas

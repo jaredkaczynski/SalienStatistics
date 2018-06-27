@@ -274,7 +274,8 @@ def update_time_scale():
     planet_data.dts = dts
     #save the data to file
 def colorScale(i):
-    default_colors_regular = ['#3366CC','#DC3912','#FF9900','#109618','#990099','#3B3EAC','#0099C6','#DD4477','#66AA00','#B82E2E','#316395','#994499','#22AA99','#AAAA11','#6633CC','#E67300','#8B0707','#329262','#5574A6','#3B3EAC']
+    ##3B3EAC, #3366CC, #109618
+    default_colors_regular = ['#0099C6','#109618','#DC3912','#FF9900','#990099','#DD4477','#66AA00','#B82E2E','#316395','#994499','#22AA99','#AAAA11','#6633CC','#E67300','#8B0707','#329262','#5574A6','#3366CC','#3B3EAC','#3B3EAC']
     return default_colors_regular[i % 20];
 def colorScaleDesat(i):
     default_colors_regular = ['#6b6a6c', '#986b5c', '#cbab8b', '#71876e', '#694c65', '#4f4b58', '#a9866b', '#837c7e', '#8e9d7e', '#6a605f', '#6b5f32', '#626762', '#bd8a98', '#a6a594', '#674d7e', '#ab8c76', '#484240', '#98788e', '#7b7440', '#4f4b58']
