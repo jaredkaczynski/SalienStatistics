@@ -374,7 +374,7 @@ def chart5():
     zone_rotated = rotate(planet_data.planet_stats[planet_id][-1].zones,-90);
     #print(planet_data.planet_stats[planet_id][0].zones)
     legend = 'Player Data'
-    timescale = custom_time_scale(planet_data.time_data[planet_id][0],planet_data.time_data[planet_id][1])
+    timescale = custom_time_scale(planet_data.time_data[planet_id][0],planet_data.time_data[planet_id][1] + 1800)
     #if it needs to update the data
     return render_template('chart_planet_dash.html', zone_rotated=zone_rotated,planet_data=planet_data,time_scale=timescale)    
     
