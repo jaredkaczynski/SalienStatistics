@@ -91,7 +91,7 @@
             labels: [{% for time in time_scale %}"{{time}}",{% endfor %}],
             datasets: [{% for zone in zone_rotated %}
 			{
-                label: "{{planetname}}",
+                label: "Zone: {{zone[0][1]}}",
                 //fill: true,
 				//{{zone[0][2]}}
                 lineTension: 0.1,
