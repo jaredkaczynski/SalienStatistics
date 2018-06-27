@@ -172,7 +172,7 @@ def parse_json_planets(response):
                 #prepend nulls to list of data
                 for i in range(0,int(longest_list)):
                     #print("Filling nulls")
-                    temp_list.append(PlanetData('null','null', []))                  
+                    temp_list.append(PlanetData(None,None, []))                  
             try:
                 planet_data.time_data[planet['id']] = [planet['state']['activation_time'],0]
                 #print(planet['state']['activation_time'])
@@ -203,7 +203,7 @@ def parse_json_planets(response):
                     else:
                         top_clans_global[clan['clan_info']['url']][1] = clan["num_zones_controled"];                        
             #if it's already got to 100% don't log it
-            if(temp_list and (temp_list[-1].capture_progress == '1' or (temp_list[-1].capture_progress == 'null' and temp_list[-2].capture_progress != 'null'))):
+            if(temp_list and (temp_list[-1].capture_progress == '1' or (temp_list[-1].capture_progress == None and temp_list[-2].capture_progress != None))):
                 pass
             else:
                 temp_list.append(PlanetData(planet['state']['capture_progress'],planet['state']['current_players'],top_clans_local))
@@ -221,8 +221,8 @@ def parse_json_planets(response):
     #If the planet is finished, set the end to null
     longest_list = get_longest_list()
     for planet_id,planet_stats in planet_data.planet_stats.items():
-        if(planet_stats[-1].capture_progress != "null" and planet_stats[-1].capture_progress == 1):
-            planet_stats.append(PlanetData('null','null',None))
+        if(planet_stats[-1].capture_progress != None and planet_stats[-1].capture_progress == 1):
+            planet_stats.append(PlanetData(None,None,None))
     #print(planet_data.top_clans[-1])
 
 def parse_json_planet(response):
@@ -293,7 +293,7 @@ def update_colors():
     #colors = ["#540D6E","#EE4266","#FFD23F","#72ff77","#1F271B"]
     for planet_id,planet_stats in planet_data.planet_stats.items():
         print("Planet Stats Coloring: " + str(planet_stats[-1]))
-        if(planet_stats[-1].capture_progress != "null" and float(planet_stats[-1].capture_progress) > 0 and float(planet_stats[-1].capture_progress) < 1):
+        if(planet_stats[-1].capture_progress != None and float(planet_stats[-1].capture_progress) > 0 and float(planet_stats[-1].capture_progress) < 1):
             print("set active color " + planet_id)
             planet_data.colors[planet_id] = colorScale(int(planet_id))
         else:
@@ -320,37 +320,64 @@ def rotate(matrix, degree):
     
 @app.route('/') 
 @app.route("/planet_charts")
-@cache.cached(timeout=60)
+@cache.cached(timeout=300)
 def chart1():
     legend = 'Capture Data'
     #if it needs to update the data
-    return render_template('chart.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
+    capture_data = ct.defaultdict(list)
+    capture_data_day = ct.defaultdict(list)
+    for key in planet_data.planet_stats:
+        for index, time in enumerate(planet_data.planet_stats[key]):
+            capture_data[key].append(time.capture_progress)
+            if(index > len(planet_data.dts) - 72):
+                capture_data_day[key].append(time.capture_progress)
+    for key in planet_data.planet_stats:
+        capture_data[key] = json.dumps(capture_data[key])
+        capture_data_day[key] = json.dumps(capture_data_day[key])
+
+        
+    return render_template('chart.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data,capture_data=capture_data,capture_data_day=capture_data_day)
  
 @app.route("/player_charts")
-@cache.cached(timeout=60)
+@cache.cached(timeout=300)
 def chart2():
-    legend = 'Player Data'
     #if it needs to update the data
-    return render_template('chart_players.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
+    capture_data = ct.defaultdict(list)
+    capture_data_day = ct.defaultdict(list)
+    for key in planet_data.planet_stats:
+        for index, time in enumerate(planet_data.planet_stats[key]):
+            capture_data[key].append(time.current_players)
+            if(index > len(planet_data.dts) - 72):
+                capture_data_day[key].append(time.current_players)
+    for key in planet_data.planet_stats:
+        capture_data[key] = json.dumps(capture_data[key])
+        capture_data_day[key] = json.dumps(capture_data_day[key])
+    return render_template('chart_players.html',planet_names=planet_data.planet_names,planet_data=planet_data,capture_data=capture_data,capture_data_day=capture_data_day)
 
 @app.route("/planet_live")
-@cache.cached(timeout=30)
+@cache.cached(timeout=300)
 def chart3():
     legend = 'Player Data'
     #if it needs to update the data
     return render_template('chart_planet_data.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
     
 @app.route("/clan_charts")
-@cache.cached(timeout=60)
+@cache.cached(timeout=300)
 def chart4():
-    legend = 'Player Data'
-    #print(planet_data.top_clans_rotated)
-    #for planetname, data in planet_data.top_clans_rotated.items():
-    #    print(planetname + "clan stuff")
-    #    print(data.clan_data[-1])
     newA = dict(sorted(planet_data.top_clans_rotated.items(), key=lambda e: e[-1].clan_data, reverse=True)[:20])
-    planet_data.top_clans_rotated = newA
-    return render_template('chart_clans.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
+    planet_data.top_clans_rotated = newA  
+    
+    capture_data = ct.defaultdict(list)
+    capture_data_day = ct.defaultdict(list)
+    for key,value in planet_data.top_clans_rotated.items():
+        for index,count in enumerate(value.clan_data):
+            capture_data[key].append(count)
+            if(index > len(planet_data.dts) - 72):
+                capture_data_day[key].append(count)
+    for key in planet_data.top_clans_rotated:
+        capture_data[key] = json.dumps(capture_data[key])
+        capture_data_day[key] = json.dumps(capture_data_day[key])
+    return render_template('chart_clans.html',planet_names=planet_data.planet_names,planet_data=planet_data,capture_data=capture_data,capture_data_day=capture_data_day)
 
 def custom_time_scale(start, end):
     dts = [dt.strftime('%d T%H:%M') for dt in  
@@ -364,17 +391,16 @@ def make_cache_key(*args, **kwargs):
     return (path + args).encode('utf-8')
     
 @app.route("/view_planet")
-@cache.cached(timeout=50, key_prefix=make_cache_key)
+@cache.cached(timeout=300, key_prefix=make_cache_key)
 def chart5():
     planet_id = request.args.get('planet_id');
     load_from_files_zone(planet_id);
-    print(planet_data.time_data[planet_id][1])
-    print(planet_data.time_data[planet_id][0])
     #custom_time_scale(planet_data.planet_stats[planet_id][-1].activation_time,capture_time)
     zone_rotated = rotate(planet_data.planet_stats[planet_id][-1].zones,-90);
     #print(planet_data.planet_stats[planet_id][0].zones)
     legend = 'Player Data'
-    timescale = custom_time_scale(planet_data.time_data[planet_id][0],planet_data.time_data[planet_id][1] + 1800)
+    timescale = custom_time_scale(planet_data.time_data[planet_id][0],planet_data.time_data[planet_id][1] + 1800)    
+    
     #if it needs to update the data
     return render_template('chart_planet_dash.html', zone_rotated=zone_rotated,planet_data=planet_data,time_scale=timescale)    
 def setup_scheduler():

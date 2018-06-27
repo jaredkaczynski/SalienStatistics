@@ -118,8 +118,8 @@
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
 				//data:[{% for key1 in clan_info.clan_data %}{{key1}},{% endfor %}],
 				//{% set timecount = (planet_data.dts|length)-144 %}
-				dataAll:[{% for key1 in clan_info.clan_data %} {{key1}},{% endfor %}],
-				data:[{% for key1 in clan_info.clan_data %} {% if loop.index > timecount %}{{key1}},{% endif %}{% endfor %}],
+				dataAll:{{capture_data[clan]}},
+				data:{{capture_data_day[clan]}},
                 spanGaps: false
             },{% endfor %}],
 			options: {
