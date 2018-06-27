@@ -69,6 +69,7 @@
           <h1>Planet Progress Statistics Per Zone</h1>
  
           <section class="row text-center placeholders col-12">
+			<div id="chart-legends"></div>
             <canvas id="PlanetChart" ></canvas>
           </section>
         </main>
@@ -91,7 +92,7 @@
             labels: [{% for time in time_scale %}"{{time}}",{% endfor %}],
             datasets: [{% for zone in zone_rotated %}
 			{
-                label: "Zone: {{zone[0][1]}}",
+                label: "Zone: {{zone[0][0] + 1}}",
                 //fill: true,
 				//{{zone[0][2]}}
                 lineTension: 0.1,
@@ -101,6 +102,7 @@
 				backgroundColor: "{{planet_data.zone_colors[zone[0][2]]}}",
 				//backgroundColor: null,
 				borderWidth: 4,
+				difficulty:{{zone[0][2]}},
                 borderCapStyle: 'butt',
                 borderDash: [],
                 borderDashOffset: 0.0,
@@ -114,26 +116,74 @@
                 pointHoverBorderWidth: 2,
                 pointRadius: 1,
                 pointHitRadius: 10,
-				options: {
-					legend: {
-						display: false
-					},
-				},
+				
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
 				data:[{% for timestep in zone %} {{timestep[1]}},{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
-			
         }
 
         // get chart canvas
         var ctx = document.getElementById("PlanetChart").getContext("2d");
-
+	
         // create the chart using the chart canvas
         var PlanetChart = new Chart(ctx, {
             type: 'line',
             data: chartDataB,
+			options: {				
+				legend: {
+				display: false,
+					},
+				legendCallback: function(chart) {
+					  console.log(chart)
+					  var text = [];
+					  var difficulty_labels = [];
+					  //text.push('<ul class="' + chart.id + '-legend">'); 
+					  var legendHtml = [];
+					  legendHtml.push('<table>');
+					  legendHtml.push('<tr>');
+						for (var i = 0; i < chart.data.datasets.length; i++) {
+							console.log(chart.data.datasets[i])
+							if(typeof difficulty_labels[chart.data.datasets[i].difficulty] === 'undefined'){
+							legendHtml.push('<td><div class="chart-legend" style="background-color:' + chart.data.datasets[i].backgroundColor + '"></div></td>');  
+							//text.push('<li><span style="background-color:' + chart.data.datasets[i].backgroundColor + '"></span>');
+							legendHtml.push('<td class="chart-legend-label-text" onclick="updateDataset(event, '+ '\'' + chart.data.datasets[i].difficulty + '\''+')">' + chart.data.datasets[i].difficulty + '</td>');
+
+							//text.push('<td class="chart-legend-label-text" onclick="updateDataset(event, '+ '\'' + chart.data.datasets[i].difficulty + '\''+')">' + chart.data.datasets[i].difficulty + '</td>');
+
+							//text.push('</li>');
+							difficulty_labels[chart.data.datasets[i].difficulty] = "assigned";
+							}  
+						} 
+						//text.push('</ul>');
+						legendHtml.push('</tr>');                                                          
+						legendHtml.push('</table>'); 						
+
+					  return legendHtml.join("");
+					},
+				},
         });
+		    // Show/hide chart by click legend
+		updateDataset = function(e, difficulty) {
+			var index = difficulty;
+			var ci = e.view.PlanetChart;
+			for(var i = 0; i < PlanetChart.data.datasets.length;i++){
+				var meta = ci.getDatasetMeta(i);
+				console.log(PlanetChart.data.datasets[i].difficulty)
+				console.log(meta['difficulty'])
+				console.log(difficulty)
+				if(PlanetChart.data.datasets[i].difficulty == difficulty){
+					// See controller.isDatasetVisible comment
+					meta.hidden = meta.hidden === null? !ci.data.datasets[index].hidden : null;
+				}
+			}
+
+
+			// We hid a dataset ... rerender the chart
+			ci.update();
+		};
+		document.getElementById('chart-legends').innerHTML = PlanetChart.generateLegend();
+
     </script>
   </body>
 </html>
