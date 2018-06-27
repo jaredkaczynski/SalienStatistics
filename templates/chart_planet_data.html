@@ -123,6 +123,8 @@
 		$('[data-toggle="popover"]').popover(); 
 	});
 	var planetProgress = new Array();
+	var planets = null;
+	var planetZoneOut = {};
 	const Item = ({ url, img, title, current_players,capture_progress, id}) => `
 		<div class="col-6 col-sm-4 placeholder" capture_progress=${capture_progress} id=${id}>
 			<a href="#" style="float: left;position: relative;" tabindex="0" class="btn btn" role="button" data-toggle="popover" data-trigger="focus" data-content="<form><input type='text'/></form>">
@@ -266,9 +268,10 @@
 				  // popover is visable
 				  $(this).removeClass("out")
 				  $(this).popover('hide');
+				  planetZoneOut[$(this).parent().attr('id')] = 0;
 				} else {
-				
 					$(this).addClass("out")
+					planetZoneOut[$(this).parent().attr('id')] = 1;
 				  	parseZone($(this).parent().attr('id'),this)
 				}
 
@@ -280,7 +283,10 @@
 		function startTimer(){
 			setInterval(function() {
 				update_data()
-			}, 5000);
+			}, 10000);
+			/**setInterval(function() {
+				update_zones()
+			}, 60000);**/
 			/**setInterval(function() {
 				fake_update_data()
 			}, 1000);**/
@@ -333,23 +339,30 @@
             success: function(data) {
                 //var obj = JSON.parse(data.contents);
 				obj = data;
+				planets = obj;
                 replacedata(obj.response.planets);
             }
 			});
 			sortCompleted()
 		}
-		
-		var movingWindowAvg = function (arr, step) {  // Window size = 2 * step + 1
-			return arr.map(function (_, idx) { 
-				var wnd = arr.slice(idx - step, idx + step + 1); 
-				var result = d3.sum(wnd) / wnd.length;
-
-				// Check for isNaN, the javascript way
-				result = (result == result) ? result : _;
-
-				return result; 
+		//Get zone data for a planet and insert it into the planet data
+		function getPlanet(planetId){
+			function update_data(){
+			$.ajax({
+            crossOrigin: true,
+            dataType: 'JSON',
+            jsonpCallback: 'callback',
+            url: "http://185.121.25.45:5001/https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?planet_id=" + planetId,
+            type: "GET",
+            success: function(data) {
+                //var obj = JSON.parse(data.contents);
+				obj = data;
+				planets[planetId].zones=data.response.zones;
+            }
 			});
-		};
+			sortCompleted()
+		}
+		}		
 		
 		function replacedata(data){
 			//Sort data with keys
