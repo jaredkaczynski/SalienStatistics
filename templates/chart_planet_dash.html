@@ -26,6 +26,16 @@
 	</script>	
 	<style>
 	.navbar-default { margin-bottom: 0px; }
+	.legend-square {
+	  float: left;
+	  width: 50px;
+	  height: 20px;
+	  margin: 5px;
+	  border: 1px solid rgba(0, 0, 0, .2);
+	}
+	html {
+	  overflow-y: scroll;
+	}
 	</style>
   </head>
 
@@ -136,29 +146,21 @@
 					},
 				legendCallback: function(chart) {
 					  console.log(chart)
-					  var text = [];
 					  var difficulty_labels = [];
-					  //text.push('<ul class="' + chart.id + '-legend">'); 
 					  var legendHtml = [];
 					  legendHtml.push('<table>');
 					  legendHtml.push('<tr>');
 						for (var i = 0; i < chart.data.datasets.length; i++) {
 							console.log(chart.data.datasets[i])
 							if(typeof difficulty_labels[chart.data.datasets[i].difficulty] === 'undefined'){
-							legendHtml.push('<td><div class="chart-legend" style="background-color:' + chart.data.datasets[i].backgroundColor + '"></div></td>');  
-							//text.push('<li><span style="background-color:' + chart.data.datasets[i].backgroundColor + '"></span>');
-							legendHtml.push('<td class="chart-legend-label-text" onclick="updateDataset(event, '+ '\'' + chart.data.datasets[i].difficulty + '\''+')">' + chart.data.datasets[i].difficulty + '</td>');
-
-							//text.push('<td class="chart-legend-label-text" onclick="updateDataset(event, '+ '\'' + chart.data.datasets[i].difficulty + '\''+')">' + chart.data.datasets[i].difficulty + '</td>');
-
-							//text.push('</li>');
+							legendHtml.push('<span><div class="legend-square" onclick="updateDataset(event, '+ '\'' + chart.data.datasets[i].difficulty + '\''+')" style="background-color:' + chart.data.datasets[i].backgroundColor + ';display: inline-block;" >')
+							legendHtml.push(chart.data.datasets[i].difficulty);
 							difficulty_labels[chart.data.datasets[i].difficulty] = "assigned";
+							legendHtml.push('</span></div>')
 							}  
 						} 
-						//text.push('</ul>');
 						legendHtml.push('</tr>');                                                          
 						legendHtml.push('</table>'); 						
-
 					  return legendHtml.join("");
 					},
 				},
