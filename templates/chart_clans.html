@@ -68,6 +68,7 @@
 			
           <section class="row text-center placeholders col-12">
             <canvas id="PlanetChart" ></canvas>
+			 <button type="button" id="showAll" class="btn btn-dark">Show All Data</button>			
           </section>
         </main>
       </div>
@@ -88,7 +89,8 @@
 
         // define the chart data
         var chartDataB = {
-            labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
+            labelsAll: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
+			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-144),
             datasets: [{% for clan, clan_info in planet_data.top_clans_rotated.items() %}
 			{
 				label: "{{clan}}",
@@ -114,7 +116,9 @@
                 pointRadius: 1,
                 pointHitRadius: 10,
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
-				data:[{% for key1 in clan_info.clan_data %}{{key1}},{% endfor %}],
+				//data:[{% for key1 in clan_info.clan_data %}{{key1}},{% endfor %}],
+				dataAll:[{% for key1 in clan_info.clan_data %} {{key1}},{% endfor %}],
+				data:[{% for key1 in clan_info.clan_data %} {% if loop.index > ((planet_data.dts|length)-144) %}{{key1}},{% endif %}{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
 			options: {
@@ -138,6 +142,20 @@
             type: 'line',
             data: chartDataB,
         });
+				$('#showAll').on('click', function(event) {
+		  event.preventDefault(); // To prevent following the link (optional)
+		  labels = PlanetChart.config.data.labels;
+		  datasets = PlanetChart.config.data.datasets;
+		  for(var i = 0; i < datasets.length; i++){
+			tempdata = datasets[i].data;
+			PlanetChart.config.data.datasets[i].data = datasets[i].dataAll;
+			PlanetChart.config.data.datasets[i].dataAll = tempdata;
+		  }
+		  PlanetChart.config.data.labels = PlanetChart.config.data.labelsAll;
+		  PlanetChart.config.data.labelsAll = labels;
+		  
+		  PlanetChart.update()
+		});
     </script>
   </body>
 </html>

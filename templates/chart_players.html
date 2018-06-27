@@ -68,6 +68,7 @@
 
           <section class="row text-center placeholders col-12">
             <canvas id="PlayerChart" ></canvas>
+			 <button type="button" id="showAll" class="btn btn-dark">Show All Data</button>
           </section>
         </main>
       </div>
@@ -88,7 +89,8 @@
 
         // define the chart data
         var chartDataA = {
-            labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
+            labelsAll: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
+			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-144),
             datasets: [{% for key, planetname in planet_data.planet_names.items() %}
 			{
                 label: "{{planetname}}",
@@ -114,7 +116,8 @@
                 pointRadius: 1,
                 pointHitRadius: 10,
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
-				data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
+				dataAll:[{% for key1 in planet_data.planet_stats[key] %} {{key1.current_players}},{% endfor %}],
+				data:[{% for key1 in planet_data.planet_stats[key] %} {% if loop.index > ((planet_data.dts|length)-144) %}{{key1.current_players}},{% endif %}{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
 			options: {
@@ -138,6 +141,20 @@
             type: 'line',
             data: chartDataA,
         });
+		$('#showAll').on('click', function(event) {
+		  event.preventDefault(); // To prevent following the link (optional)
+		  labels = PlayerChart.config.data.labels;
+		  datasets = PlayerChart.config.data.datasets;
+		  for(var i = 0; i < datasets.length; i++){
+			tempdata = datasets[i].data;
+			PlayerChart.config.data.datasets[i].data = datasets[i].dataAll;
+			PlayerChart.config.data.datasets[i].dataAll = tempdata;
+		  }
+		  PlayerChart.config.data.labels = PlayerChart.config.data.labelsAll;
+		  PlayerChart.config.data.labelsAll = labels;
+		  
+		  PlayerChart.update()
+		});
     </script>
   </body>
 </html>

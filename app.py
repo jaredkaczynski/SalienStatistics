@@ -408,7 +408,7 @@ def main():
     #print(loadData().planet_stats)
     setup_scheduler()
     update_data()
-    app.run(host="0.0.0.0",port=80)
+    app.run(host="127.0.0.1",port=80)
 main()
 
 # Shut down the scheduler when exiting the app

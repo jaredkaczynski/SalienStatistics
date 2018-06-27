@@ -75,6 +75,7 @@
 
           <section class="row text-center placeholders col-12">
             <canvas id="PlanetChart" ></canvas>
+			 <button type="button" id="showAll" class="btn btn-dark">Show All Data</button>
           </section>
         </main>
       </div>
@@ -95,7 +96,8 @@
 
         // define the chart data
         var chartDataB = {
-            labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
+            labelsAll: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
+			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-144),
             datasets: [{% for key, planetname in planet_data.planet_names.items() %}
 			{
                 label: "{{planetname}}",
@@ -120,8 +122,9 @@
                 pointHoverBorderWidth: 2,
                 pointRadius: 1,
                 pointHitRadius: 10,
-				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
-				data:[{% for key1 in planet_data.planet_stats[key] %} {{key1.capture_progress}},{% endfor %}],
+				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.capture_progress}},{% endfor %}].slice(1).slice(-72),
+				dataAll:[{% for key1 in planet_data.planet_stats[key] %} {{key1.capture_progress}},{% endfor %}],
+				data:[{% for key1 in planet_data.planet_stats[key] %} {% if loop.index > ((planet_data.dts|length)-144) %}{{key1.capture_progress}},{% endif %}{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
 			options: {
@@ -136,7 +139,13 @@
         }
 		}
         }
-
+		$("#0").click(function() {
+			var data = forecast_chart.config.data;
+			data.datasets[0].data = temp_dataset;
+			data.datasets[1].data = rain_dataset;
+			data.labels = chart_labels;
+			forecast_chart.update();
+		});
         // get chart canvas
         var ctx = document.getElementById("PlanetChart").getContext("2d");
 
@@ -144,7 +153,55 @@
         var PlanetChart = new Chart(ctx, {
             type: 'line',
             data: chartDataB,
+			options:{
+			},
         });
+		
+		$(document).ready(function(){
+		var quantity=0;
+		   $('.quantity-right-plus').click(function(e){
+				
+				// Stop acting like a button
+				e.preventDefault();
+				// Get the field name
+				var quantity = parseInt($('#quantity').val());
+				
+				// If is not undefined
+					
+					$('#quantity').val(quantity + 1);
+					// Increment
+				
+			});
+
+			 $('.quantity-left-minus').click(function(e){
+				// Stop acting like a button
+				e.preventDefault();
+				// Get the field name
+				var quantity = parseInt($('#quantity').val());
+				
+				// If is not undefined
+			  
+					// Increment
+					if(quantity>0){
+					$('#quantity').val(quantity - 1);
+					}
+					});
+					
+		});
+		$('#showAll').on('click', function(event) {
+		  event.preventDefault(); // To prevent following the link (optional)
+		  labels = PlanetChart.config.data.labels;
+		  datasets = PlanetChart.config.data.datasets;
+		  for(var i = 0; i < datasets.length; i++){
+			tempdata = datasets[i].data;
+			PlanetChart.config.data.datasets[i].data = datasets[i].dataAll;
+			PlanetChart.config.data.datasets[i].dataAll = tempdata;
+		  }
+		  PlanetChart.config.data.labels = PlanetChart.config.data.labelsAll;
+		  PlanetChart.config.data.labelsAll = labels;
+		  
+		  PlanetChart.update()
+		});
     </script>
   </body>
 </html>
