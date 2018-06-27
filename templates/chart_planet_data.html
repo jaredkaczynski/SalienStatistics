@@ -102,6 +102,7 @@
         </nav>
 
             <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
+
                 <h1>Planet Live Data</h1>
 
                 <section class="row text-center placeholders" id="planet-append">
@@ -147,7 +148,7 @@
             crossOrigin: true,
             dataType: 'JSON',
             jsonpCallback: 'callback',
-            url: "http://185.121.25.45:5001/https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/",
+            url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/",
             type: "GET",
             success: function(data) {
                 //var obj = JSON.parse(data.contents);
@@ -195,7 +196,7 @@
             crossOrigin: true,
             dataType: 'JSON',
             jsonpCallback: 'callback',
-            url: "http://185.121.25.45:5001/https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id="+zone,
+            url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id="+zone,
             type: "GET",
             success: function(data) {
 				obj = data.response.planets[0].zones;
@@ -327,7 +328,7 @@
             crossOrigin: true,
             dataType: 'JSON',
             jsonpCallback: 'callback',
-            url: "http://185.121.25.45:5001/https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/",
+            url: "http://185.121.25.45:5001/https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/?active_only=1",
             type: "GET",
             success: function(data) {
                 //var obj = JSON.parse(data.contents);
@@ -362,18 +363,21 @@
 			$('#planet-append').children('div').each(function(i) {
 				id = $(this).attr('id');	
 				//console.log(dict[id]);
-				planet = dict[id]
-				if(isNaN(planet.state.capture_progress) || planet.state.capture_progress === null){
-					planet.state.capture_progress = 0;
+				if(id in dict){
+					planet = dict[id]
+					if(isNaN(planet.state.capture_progress) || planet.state.capture_progress === null){
+						planet.state.capture_progress = 0;
+					}
+					if(String(planet.state.current_players).includes("undefined")){
+						planet.state.current_players = "0";
+					}
+
+					$(this).attr('capture_progress',Math.round(parseInt(planet.state.capture_progress*10000)) / 100);
+					$(this).find('.progress-bar').css('width', Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + '%');
+					$(this).find('.progress-bar').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
+					//$(this).find('.progress-value').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
+					$(this).find('.text-muted').text("Players: " + planet.state.current_players);
 				}
-				if(String(planet.state.current_players).includes("undefined")){
-					planet.state.current_players = "0";
-				}
-				$(this).attr('capture_progress',Math.round(parseInt(planet.state.capture_progress*10000)) / 100);
-				$(this).find('.progress-bar').css('width', Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + '%');
-				$(this).find('.progress-bar').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
-				//$(this).find('.progress-value').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
-				$(this).find('.text-muted').text("Players: " + planet.state.current_players);
 			});
 		}
 		

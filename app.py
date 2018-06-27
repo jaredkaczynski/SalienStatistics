@@ -179,10 +179,7 @@ def parse_json_planets(response):
                 #temp_list.activation_time = planet['state']['activation_time']
             except:
                 pass
-            try:
-                planet_data.time_data[planet['id']][1] = planet['state']['capture_time']
-            except:
-                planet_data.time_data[planet['id']][1] = datetime.utcnow().timestamp()
+                
                 
             #global has to be a single sorted list of all the top clans
             for clan in planet['top_clans']:
@@ -213,11 +210,14 @@ def parse_json_planets(response):
                     #if the clan wasn't top in this time slice
                     if(clan_name not in top_clans_global):
                             top_clans_global[clan_name] = [clan_data[0],clan_data[1]]
+                  
     except:
+        print("Error")
         pass
     planet_data.top_clans.append(top_clans_global)
     rotate_data()
-
+    
+        
     #If the planet is finished, set the end to null
     longest_list = get_longest_list()
     for planet_id,planet_stats in planet_data.planet_stats.items():
@@ -261,6 +261,11 @@ def parse_json_planet(response):
             temp_zone_list.append([zone['zone_position'],zone_value,zone['difficulty']]) 
         temp_list[-1].zones.append(temp_zone_list)
         #print(temp_list)
+        try:
+            new_val = planet_data.time_data[planet['id']][0] + (1200 * len(temp_list[-1].zones))
+            planet_data.time_data[planet['id']][1] = new_val 
+        except:
+             pass
 
     
 def update_time_scale():
