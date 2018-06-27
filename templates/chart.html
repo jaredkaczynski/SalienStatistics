@@ -97,7 +97,7 @@
         // define the chart data
         var chartDataB = {
             labelsAll: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
-			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-72),
+			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-67),
             datasets: [{% for key, planetname in planet_data.planet_names.items() %}
 			{
                 label: "{{planetname}}",
