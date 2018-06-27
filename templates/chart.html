@@ -123,8 +123,9 @@
                 pointRadius: 1,
                 pointHitRadius: 10,
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.capture_progress}},{% endfor %}].slice(1).slice(-72),
+				//{% set timecount = (planet_data.dts|length)-144 %}
 				dataAll:[{% for key1 in planet_data.planet_stats[key] %} {{key1.capture_progress}},{% endfor %}],
-				data:[{% for key1 in planet_data.planet_stats[key] %} {% if loop.index > ((planet_data.dts|length)-144) %}{{key1.capture_progress}},{% endif %}{% endfor %}],
+				data:[{% for key1 in planet_data.planet_stats[key] %} {% if loop.index > timecount %}{{key1.capture_progress}},{% endif %}{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
 			options: {

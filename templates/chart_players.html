@@ -116,8 +116,9 @@
                 pointRadius: 1,
                 pointHitRadius: 10,
 				//data:[{% for key1 in planet_data.planet_stats[key] %}{{key1.current_players}},{% endfor %}],
+				//{% set timecount = (planet_data.dts|length)-144 %}
 				dataAll:[{% for key1 in planet_data.planet_stats[key] %} {{key1.current_players}},{% endfor %}],
-				data:[{% for key1 in planet_data.planet_stats[key] %} {% if loop.index > ((planet_data.dts|length)-144) %}{{key1.current_players}},{% endif %}{% endfor %}],
+				data:[{% for key1 in planet_data.planet_stats[key] %} {% if loop.index > timecount %}{{key1.current_players}},{% endif %}{% endfor %}],
                 spanGaps: false
             },{% endfor %}],
 			options: {
