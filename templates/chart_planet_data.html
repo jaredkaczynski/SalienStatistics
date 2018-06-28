@@ -199,18 +199,10 @@
 		;
 		jQuery(function ($){
         $(document).ajaxStop(function(){
-			if(firstload){
             $("#spinner").hide();
-			} else {
-			   
-			}
          });
          $(document).ajaxStart(function(){
-			 if(firstload){
              $("#spinner").show();
-			 } else {
-			   
-			}
          });    
 		});
 		$(document).ready(function(){
