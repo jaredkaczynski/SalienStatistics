@@ -423,26 +423,28 @@
 				planet = global_planets[planet_position];
 				if(planet.state.active == true && planet.state.capture_progress < 1){
 					for(zone_id in planet.zones){
-						switch(planet.zones[zone_id].difficulty) {
-							case 1:
-							zoneCount[0] += 1
-							break;
-							case 2:
-							zoneCount[1] += 1
-							break;
-							case 3:
-							zoneCount[2] += 1
-							break;
+						if(planet.zones[zone_id].captured == false){
+							switch(planet.zones[zone_id].difficulty) {
+								case 1:
+								zoneCount[0] += 1
+								break;
+								case 2:
+								zoneCount[1] += 1
+								break;
+								case 3:
+								zoneCount[2] += 1
+								break;
+							}
 						}
 					}
 				}
 			}
 			$("#live_zones").find(".bg-success").css("width",zoneCount[0])
-			$("#live_zones").find(".bg-success").text(zoneCount[0])			
+			$("#live_zones").find(".bg-success").text(zoneCount[0] == 0?"" : zoneCount[0])			
 			$("#live_zones").find(".bg-warning").css("width",zoneCount[1]) 
-			$("#live_zones").find(".bg-warning").text(zoneCount[1])	
+			$("#live_zones").find(".bg-warning").text(zoneCount[1] == 0?"" : zoneCount[1])
 			$("#live_zones").find(".bg-danger").css("width",zoneCount[2]) 
-			$("#live_zones").find(".bg-danger").text(zoneCount[2])	
+			$("#live_zones").find(".bg-danger").text(zoneCount[2] == 0?"" : zoneCount[2])
 		}
 		//Get zone data for a planet and insert it into the planet data
 		function updatePlanet(planetId){
