@@ -323,7 +323,7 @@ def rotate(matrix, degree):
     else:
         return rotate(list(zip(*matrix))[::-1], degree+90)    
     
-@app.route('/') 
+
 @app.route("/planet_charts")
 @cache.cached(timeout=300)
 def chart1():
@@ -358,7 +358,8 @@ def chart2():
         capture_data[key] = json.dumps(capture_data[key])
         capture_data_day[key] = json.dumps(capture_data_day[key])
     return render_template('chart_players.html',planet_names=planet_data.planet_names,planet_data=planet_data,capture_data=capture_data,capture_data_day=capture_data_day)
-
+    
+@app.route('/') 
 @app.route("/planet_live")
 @cache.cached(timeout=300)
 def chart3():
