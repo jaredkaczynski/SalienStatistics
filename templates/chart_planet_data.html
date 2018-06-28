@@ -54,7 +54,9 @@
 		.difficulty-3 {
 			background-color: #d9534f;
 		}
-
+		.progress-bar {
+			font-size:150%;
+		}
 		html {
 		  overflow-y: scroll;
 		}
@@ -102,7 +104,18 @@
         </nav>
 
             <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
-
+				<div class="row">
+					<div class="col-md-4">
+					</div>
+					<div class="col-md-4">
+					  <h4 style="text-align:center">Remaining Zones</h4>
+						<div class="progress" style="height: 20px;" id="live_zones">
+						  <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="480"></div>
+						  <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="480"></div>
+						  <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="480"></div>
+						</div>
+					</div>
+				  </div>
                 <h1>Planet Live Data</h1>
 
                 <section class="row text-center placeholders" id="planet-append">
@@ -122,8 +135,8 @@
 	$(document).ready(function(){
 		$('[data-toggle="popover"]').popover(); 
 	});
-	var planetProgress = new Array();
-	var planets = null;
+	var zoneCount = [0,0,0];
+	var global_planets = null;
 	var planetZoneOut = {};
 	const Item = ({ url, img, title, current_players,capture_progress, id}) => `
 		<div class="col-6 col-sm-4 placeholder" capture_progress=${capture_progress} id=${id}>
@@ -140,7 +153,7 @@
 				<h4>${title}</h4>
 				<span class="text-muted">Players: ${current_players}</span>
 				<div class="progress" style="line-height:30px;height:30px">
-				  <div class="progress-bar bg-success" style="width: ${capture_progress}%;font-size:150%;height:30px" role="progressbar" aria-valuenow="${capture_progress}" aria-valuemin="0" aria-valuemax="100">${capture_progress}%</div>
+				  <div class="progress-bar bg-success" style="width: ${capture_progress}%;height:30px" role="progressbar" aria-valuenow="${capture_progress}" aria-valuemin="0" aria-valuemax="100">${capture_progress}%</div>
 				</div>
 				<br><br>
 		</div>`
@@ -155,14 +168,10 @@
             success: function(data) {
                 //var obj = JSON.parse(data.contents);
 				obj = data;
-                //console.log(obj.response);
+				global_planets = obj.response.planets
                 addPlanets(obj.response.planets);
             }
         });
-		
-		/**console.log(obj.response);
-        //addPlanets(obj.response.planets);
-		$(document).ready(addPlanets(obj.response.planets));**/
 		
 		function sortCompleted(){
 			var mylist = $('#planet-append');
@@ -284,9 +293,12 @@
 			setInterval(function() {
 				update_data()
 			}, 10000);
-			/**setInterval(function() {
-				update_zones()
-			}, 60000);**/
+			setTimeout(function() {
+				updateZones()
+			},100);
+			setInterval(function() {
+				updateZones()
+			}, 300000);
 			/**setInterval(function() {
 				fake_update_data()
 			}, 1000);**/
@@ -329,40 +341,76 @@
 				$(this).find('.text-muted').text(planet.state.current_players);
 			});
 		}
+		
 		function update_data(){
 			$.ajax({
             crossOrigin: true,
             dataType: 'JSON',
             jsonpCallback: 'callback',
-            url: "http://185.121.25.45:5001/https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/?active_only=1",
+            url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanets/v0001/?active_only=1",
             type: "GET",
             success: function(data) {
                 //var obj = JSON.parse(data.contents);
 				obj = data;
-				planets = obj;
+				global_planets = obj.response.planets;
                 replacedata(obj.response.planets);
             }
 			});
 			sortCompleted()
 		}
+		function update_zone_progress(){
+			zoneCount = [0,0,0]
+			for(planet_position in global_planets){
+				planet = global_planets[planet_position];
+				if(planet.state.active == true && planet.state.capture_progress < 1){
+					for(zone_id in planet.zones){
+						switch(planet.zones[zone_id].difficulty) {
+							case 1:
+							zoneCount[0] += 1
+							break;
+							case 2:
+							zoneCount[1] += 1
+							break;
+							case 3:
+							zoneCount[2] += 1
+							break;
+						}
+					}
+				}
+			}
+			$("#live_zones").find(".bg-success").css("width",zoneCount[0])
+			$("#live_zones").find(".bg-success").text(zoneCount[0])			
+			$("#live_zones").find(".bg-warning").css("width",zoneCount[1]) 
+			$("#live_zones").find(".bg-warning").text(zoneCount[1])	
+			$("#live_zones").find(".bg-danger").css("width",zoneCount[2]) 
+			$("#live_zones").find(".bg-danger").text(zoneCount[2])	
+		}
 		//Get zone data for a planet and insert it into the planet data
-		function getPlanet(planetId){
-			function update_data(){
+		function updatePlanet(planetId){
 			$.ajax({
             crossOrigin: true,
             dataType: 'JSON',
             jsonpCallback: 'callback',
-            url: "http://185.121.25.45:5001/https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?planet_id=" + planetId,
+            url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id=" + planetId,
             type: "GET",
-            success: function(data) {
+			 success: function(data) {
                 //var obj = JSON.parse(data.contents);
 				obj = data;
-				planets[planetId].zones=data.response.zones;
+				global_planets[planetId].zones = obj.response.planets[0].zones;
+                //replacedata(obj.response.planets);
             }
 			});
-			sortCompleted()
 		}
-		}		
+		function updateZones(){
+			for( planet_name in global_planets){
+				console.log(global_planets[planet_name])
+				if(global_planets[planet_name].state.active == true && global_planets[planet_name].state.captured == false){
+					updatePlanet(global_planets[planet_name].id)
+				}
+			}
+			//Delay update to assure data is processed and such
+			setTimeout(update_zone_progress,1000);
+		}
 		
 		function replacedata(data){
 			//Sort data with keys
