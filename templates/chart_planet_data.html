@@ -252,7 +252,7 @@
 			})
 		}
 		function parseZone(planet_id,element){
-			if(global_planets[planet_id].zones){
+			if(global_planets[planet_id] != null && global_planets[planet_id].zones != null && global_planets[planet_id].zones){
 				appendTable(global_planets[planet_id].zones, element)
 			} else {
 				$.ajax({
@@ -262,6 +262,10 @@
 				url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id="+planet_id,
 				type: "GET",
 				success: function(data) {
+					if(global_planets[planet_id] == null){
+						global_planets[planet_id] = {};
+					}
+					global_planets[planet_id].zones = obj;
 					obj = data.response.planets[0].zones;
 					appendTable(obj, element)
 				}
