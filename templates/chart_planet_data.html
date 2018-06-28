@@ -176,6 +176,10 @@
 	var zoneCount = [0,0,0];
 	var global_planets = null;
 	var planetZoneOut = {};
+	var planetPlayerHistoryCount = {};
+	var planetPlayerHistoryTime = {};	
+	var startTime = Date.now()
+	var minimisers = {};
 	firstload = true;
 	const Item = ({ url, img, title, current_players,capture_progress, id}) => `
 		<div class="col-6 col-sm-4 placeholder" capture_progress=${capture_progress} id=${id}>
@@ -272,6 +276,7 @@
 				});
 			}
 		}
+		
 		function appendTable(zones,element){
 				var table = document.createElement('table'), tr, td, i;
 				table.className = "table table-bordered";
@@ -305,6 +310,7 @@
 				$(element).attr('data-content',table.innerHTML);
 				$(element).popover('show');
 		}
+		
 		function reloadData(){
 			console.log("reload data");
 			if(localStorage.getItem('hideCompleted') != null && localStorage.getItem('hideCompleted') == "true"){
@@ -354,7 +360,7 @@
 		function startTimer(){
 			setInterval(function() {
 				update_data()
-			}, 10000);
+			}, 5000);
 			setTimeout(function() {
 				updateZones()
 			},100);
@@ -362,9 +368,15 @@
 				updateZones()
 			}, 300000);
 			/**setInterval(function() {
+				test = Object.keys(planetPlayerHistoryTime)[0]
+				if(test != null && planetPlayerHistoryTime[test].length > 6){
 				fake_update_data()
-			}, 1000);**/
+			}
+			}, 250);**/
 		}
+		
+		
+		
 		function addPlanets(planets){
 			//$('#planet-append').Item("test","test","test"));
 			dataList = []
@@ -384,24 +396,28 @@
 			reloadData()
 			startTimer()
 		}
+		
 		function fake_update_data(){
-			//Sort data with keys
-			var dict = {};
-			$(data).each(function(i) {
-				console.log(this)
-				id = $(this).attr('id');
-				dict[id] = this;
-			});
 			//append new data
 			$('#planet-append').children('div').each(function(i) {
-				id = $(this).attr('id');	
-				console.log(dict[id]);
-				planet = dict[id]
-				$(this).attr('capture_progress',Math.round(parseInt(planet.state.capture_progress*10000)) / 100);
-				$(this).find('.progress-bar').css('width', Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + '%');
-				$(this).find('.progress-bar').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
-				$(this).find('.text-muted').text(planet.state.current_players);
+				id = $(this).attr('id');
+				if(id in planetPlayerHistoryTime){
+					if(!(id in objectives)){
+						var initial = [1,1,1,1];
+						var objective = makeObjective(quadratic, planetPlayerHistoryTime[id], planetPlayerHistoryCount[id]); // then carry on as before
+						var minimiser = numeric.uncmin(objective,initial);
+						minimisers[id] = minimiser;
+					}
+					x = getTimeMs();
+					console.log(typeof(minimisers[id].solution[0]))
+					fake_player_count = minimisers[id].solution[0]*x^2 + minimisers[id].solution[1]*x^1 + minimisers[id].solution[2]
+					$(this).find('.text-muted').text(fake_player_count);
+				}
 			});
+		}
+		
+		function getTimeMs(){
+			return Date.now()-startTime;
 		}
 		
 		function update_data(){
@@ -418,8 +434,10 @@
                 replacedata(obj.response.planets);
             }
 			});
+			objectives = {}
 			sortCompleted()
 		}
+		
 		function update_zone_progress(){
 			firstload = false;
 			zoneCount = [0,0,0]
@@ -443,13 +461,16 @@
 					}
 				}
 			}
-			$("#live_zones").find(".bg-success").css("width",zoneCount[0])
-			$("#live_zones").find(".bg-success").text(zoneCount[0] == 0?"" : zoneCount[0])			
-			$("#live_zones").find(".bg-warning").css("width",zoneCount[1]) 
-			$("#live_zones").find(".bg-warning").text(zoneCount[1] == 0?"" : zoneCount[1])
-			$("#live_zones").find(".bg-danger").css("width",zoneCount[2]) 
-			$("#live_zones").find(".bg-danger").text(zoneCount[2] == 0?"" : zoneCount[2])
+			if(zoneCount.reduce((a, b) => a + b, 0) >= 0){
+				$("#live_zones").find(".bg-success").css("width",zoneCount[0])
+				$("#live_zones").find(".bg-success").text(zoneCount[0] == 0?"" : zoneCount[0])			
+				$("#live_zones").find(".bg-warning").css("width",zoneCount[1]) 
+				$("#live_zones").find(".bg-warning").text(zoneCount[1] == 0?"" : zoneCount[1])
+				$("#live_zones").find(".bg-danger").css("width",zoneCount[2]) 
+				$("#live_zones").find(".bg-danger").text(zoneCount[2] == 0?"" : zoneCount[2])
+			}
 		}
+		
 		//Get zone data for a planet and insert it into the planet data
 		function updatePlanet(planetId){
 			$.ajax({
@@ -462,10 +483,10 @@
                 //var obj = JSON.parse(data.contents);
 				obj = data;
 				global_planets[planetId].zones = obj.response.planets[0].zones;
-                //replacedata(obj.response.planets);
             }
 			});
 		}
+		
 		function updateZones(){
 			for( planet_name in global_planets){
 				console.log(global_planets[planet_name])
@@ -476,6 +497,7 @@
 			//Delay update to assure data is processed and such
 			setTimeout(update_zone_progress,1000);
 		}
+		
 		
 		function replacedata(data){
 			//Sort data with keys
@@ -503,6 +525,13 @@
 					$(this).find('.progress-bar').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
 					//$(this).find('.progress-value').text(Math.round(parseInt(planet.state.capture_progress*10000)) / 100 + "%");
 					$(this).find('.text-muted').text("Players: " + planet.state.current_players);
+					//Add data to an array for advanced faking of numbers later
+					if(planetPlayerHistoryCount[id] == null){
+						planetPlayerHistoryCount[id] = [planet.state.current_players]
+						planetPlayerHistoryTime[id] = [getTimeMs()]
+					}
+					planetPlayerHistoryCount[id].push(planet.state.current_players)
+					planetPlayerHistoryTime[id].push(getTimeMs())
 				}
 			});
 		}
@@ -552,10 +581,37 @@
 					}
                 });
 		});
+		
+		var cubic = function(params,x) {
+		  return params[0] * x*x*x +
+			params[1] * x*x +
+			params[2] * x +
+			params[3];
+		};	
+
+		var quadratic = function(params,x) {
+		  return params[0] * x*x +
+			params[1] * x +
+			params[2];
+		};	
+		
+		var makeObjective = function(targetFunc,xlist,ylist) {
+		  var objective = function(params) {
+			var total = 0.0;
+			for(var i=0; i < xlist.length; ++i) {
+			  var resultThisDatum = targetFunc(params, xlist[i]);
+			  var delta = resultThisDatum - ylist[i];
+			  total += (delta*delta);
+			}
+			return total;
+		  };
+		  return objective;
+		};	
+
 
 		
     </script>
-
+	<script src="static/js/numeric-1.2.6.min.js"</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
 
 </body>
