@@ -367,12 +367,12 @@
 			setInterval(function() {
 				updateZones()
 			}, 300000);
-			/**setInterval(function() {
+			setInterval(function() {
 				test = Object.keys(planetPlayerHistoryTime)[0]
 				if(test != null && planetPlayerHistoryTime[test].length > 6){
 				fake_update_data()
 			}
-			}, 250);**/
+			}, 250);
 		}
 		
 		
@@ -411,7 +411,8 @@
 					x = getTimeMs();
 					console.log(typeof(minimisers[id].solution[0]))
 					fake_player_count = minimisers[id].solution[0]*x^2 + minimisers[id].solution[1]*x^1 + minimisers[id].solution[2]
-					$(this).find('.text-muted').text(fake_player_count);
+					//fake_player_count = minimisers[id].solution[0]*x^4 + minimisers[id].solution[1]*x^2 + minimisers[id].solution[2]*x^1 + minimisers[id].solution[3]
+					$(this).find('.text-muted').text("Players: " + fake_player_count);
 				}
 			});
 		}
@@ -482,6 +483,9 @@
 			 success: function(data) {
                 //var obj = JSON.parse(data.contents);
 				obj = data;
+				if(!(planetId in global_planets)){
+					global_planets[planetId] = {}
+				}
 				global_planets[planetId].zones = obj.response.planets[0].zones;
             }
 			});
@@ -530,8 +534,12 @@
 						planetPlayerHistoryCount[id] = [planet.state.current_players]
 						planetPlayerHistoryTime[id] = [getTimeMs()]
 					}
-					planetPlayerHistoryCount[id].push(planet.state.current_players)
-					planetPlayerHistoryTime[id].push(getTimeMs())
+					if(planet.state.current_players != planetPlayerHistoryCount[id][planetPlayerHistoryCount[id].length - 1]){
+						console.log(planetPlayerHistoryCount[id])
+						console.log(planetPlayerHistoryTime[id])
+						planetPlayerHistoryCount[id].push(planet.state.current_players)
+						planetPlayerHistoryTime[id].push(getTimeMs())
+					}
 				}
 			});
 		}
