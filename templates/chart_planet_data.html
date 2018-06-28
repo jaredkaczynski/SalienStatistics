@@ -60,6 +60,44 @@
 		html {
 		  overflow-y: scroll;
 		}
+
+		@keyframes spinner {
+		  from {transform:rotate(0deg);}
+		  to {transform: rotate(360deg);}
+		}
+		 @keyframes spinner-main {
+		  from {transform:rotate(0deg);}
+		  to {transform: rotate(360deg);}
+		}
+		.spinner:before {
+		  content: '';
+		  box-sizing: border-box;
+		  position: absolute;
+		  top: 50%;
+		  left: 50%;
+		  width: 30px;
+		  height: 30px;
+		  margin-top: -15px;
+		  margin-left: -15px;
+		  border-radius: 50%;
+		  border: 1px solid #ccc;
+		  border-top-color: #07d;
+		  animation: spinner .6s linear infinite;
+		}
+		.spinner-main:before {
+		  content: '';
+		  box-sizing: border-box;
+		  position: absolute;
+		  top: 50%;
+		  left: 50%;
+		  width: 30px;
+		  height: 30px;
+		  margin-top: 150px!important;
+		  border-radius: 50%;
+		  border: 1px solid #ccc;
+		  border-top-color: #07d;
+		  animation: spinner .6s linear infinite;
+		}
 	</style>
 </head>
 
@@ -115,11 +153,13 @@
 						  <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="480"></div>
 						</div>
 					</div>
+					<div class="col-md-4" style="text-align:center;margin-top: 30px;">
+					    <div class="spinner" id='spinner'></div>
+					</div>
 				  </div>
                 <h1>Planet Live Data</h1>
 
                 <section class="row text-center placeholders" id="planet-append">
-                    
                 </section>
             </main>
         </div>
@@ -132,12 +172,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="static/js/bootstrap.min.js"></script>
 	<script>
-	$(document).ready(function(){
-		$('[data-toggle="popover"]').popover(); 
-	});
+	
 	var zoneCount = [0,0,0];
 	var global_planets = null;
 	var planetZoneOut = {};
+	firstload = true;
 	const Item = ({ url, img, title, current_players,capture_progress, id}) => `
 		<div class="col-6 col-sm-4 placeholder" capture_progress=${capture_progress} id=${id}>
 			<a href="#" style="float: left;position: relative;" tabindex="0" class="btn btn" role="button" data-toggle="popover" data-trigger="focus" data-content="<form><input type='text'/></form>">
@@ -158,7 +197,25 @@
 				<br><br>
 		</div>`
 		;
-						  //<span class="progress-value">${capture_progress}%</span>	
+		jQuery(function ($){
+        $(document).ajaxStop(function(){
+			if(firstload){
+            $("#spinner").hide();
+			} else {
+			   
+			}
+         });
+         $(document).ajaxStart(function(){
+			 if(firstload){
+             $("#spinner").show();
+			 } else {
+			   
+			}
+         });    
+		});
+		$(document).ready(function(){
+			$('[data-toggle="popover"]').popover(); 
+		});
         $.ajax({
             crossOrigin: true,
             dataType: 'JSON',
@@ -359,6 +416,7 @@
 			sortCompleted()
 		}
 		function update_zone_progress(){
+			firstload = false;
 			zoneCount = [0,0,0]
 			for(planet_position in global_planets){
 				planet = global_planets[planet_position];
@@ -487,10 +545,11 @@
 					}
                 });
 		});
+
+		
     </script>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-    
 
 </body>
 
