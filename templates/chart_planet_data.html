@@ -251,46 +251,50 @@
 				mylist.append(itm);
 			})
 		}
-		function parseZone(zone,element){
-			$.ajax({
-            crossOrigin: true,
-            dataType: 'JSON',
-            jsonpCallback: 'callback',
-            url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id="+zone,
-            type: "GET",
-            success: function(data) {
-				obj = data.response.planets[0].zones;
-				console.log(zone)
+		function parseZone(planet_id,element){
+			if(global_planets[planet_id].zones){
+				appendTable(global_planets[planet_id].zones, element)
+			} else {
+				$.ajax({
+				crossOrigin: true,
+				dataType: 'JSON',
+				jsonpCallback: 'callback',
+				url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id="+planet_id,
+				type: "GET",
+				success: function(data) {
+					obj = data.response.planets[0].zones;
+					appendTable(obj, element)
+				}
+				});
+			}
+		}
+		function appendTable(zones,element){
 				var table = document.createElement('table'), tr, td, i;
 				table.className = "table table-bordered";
-				for (i = 0; i < obj.length; i++) { 
+				for (i = 0; i < zones.length; i++) { 
 					if (i % 12 == 0) { // every 22nd cell (including the first)
 						tr = table.appendChild(document.createElement('tr')); // add a new row
 					}
 					td = tr.appendChild(document.createElement('td'));
-					if(obj[i].captured == true){
+					if(zones[i].captured == true){
 
 						var DOM_link = document.createElement("a");
-						DOM_link.href = "https://steamcommunity.com/groups/" + obj[i].leader.url;
+						DOM_link.href = "https://steamcommunity.com/groups/" + zones[i].leader.url;
 						var DOM_img = document.createElement("img");
-						DOM_img.src = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars//e3/" + obj[i].leader.avatar + ".jpg";
+						DOM_img.src = "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars//e3/" + zones[i].leader.avatar + ".jpg";
 						DOM_link.appendChild(DOM_img);
 						td.appendChild(DOM_link);
 					} else {
-						td.innerHTML = obj[i].difficulty;
-						$(td).addClass("difficulty-" + obj[i].difficulty + " difficulty-cell")						
+						td.innerHTML = zones[i].difficulty;
+						$(td).addClass("difficulty-" + zones[i].difficulty + " difficulty-cell")						
 					}
-					td.title = parseInt(obj[i].capture_progress*100) + "% \n Leader: " + obj[i].leader.name;
+					td.title = parseInt(zones[i].capture_progress*100) + "% \n Leader: " + zones[i].leader.name;
 				}
 				//document.getElementById('container').appendChild(table);
 				
 			
 				$(element).attr('data-content',table.innerHTML);
 				$(element).popover('show');
-                //var obj = JSON.parse(data.contents);
-				console.log(data);
-            }
-        });
 		}
 		function reloadData(){
 			console.log("reload data");
