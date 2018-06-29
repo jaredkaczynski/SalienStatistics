@@ -268,9 +268,13 @@
 				url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id="+planet_id,
 				type: "GET",
 				success: function(data) {
-					obj = data.response.planets[0];
+					if(global_planets[planet_id] == null){
+						global_planets[planet_id] = {};
+					}
+					global_planets[planet_id].zones = obj;
+					obj = data.response.planets[0].zones;
 					global_planet_zones[planet_id] = obj;	
-					appendTable(obj, element)
+					appendTable(obj, element)		
 				}
 				});
 			}
@@ -498,9 +502,10 @@
 			 success: function(data) {
                 //var obj = JSON.parse(data.contents);
 				obj = data;
-				/**if(!(planetId in global_planets)){
+				if(!(planetId in global_planets)){
 					global_planets[planetId] = {};
-				}**/
+				}
+				global_planets[planetId] = obj.response.planets[0].zones
 				global_planet_zones[planetId] = obj.response.planets[0];
             }
 			});
