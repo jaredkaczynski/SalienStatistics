@@ -388,7 +388,7 @@ def chart4():
 def custom_time_scale(start, end):
     dts = [dt.strftime('%d T%H:%M') for dt in  
            datetime_range(datetime.fromtimestamp(int(start)), datetime.fromtimestamp(int(end)), 
-           timedelta(minutes=10))]  
+           timedelta(minutes=20))]  
     return(dts)    
     
 def make_cache_key(*args, **kwargs):
