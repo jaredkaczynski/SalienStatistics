@@ -142,6 +142,22 @@
         var PlanetChart = new Chart(ctx, {
             type: 'line',
             data: chartDataB,
+			options: {
+				scales: {
+					yAxes: [{
+					  scaleLabel: {
+						display: true,
+						labelString: 'Completion Percent'
+					  }
+					}],
+					xAxes: [{
+					  scaleLabel: {
+						display: true,
+						labelString: 'Time'
+					  }
+					}]
+				  }, 
+				 }
         });
 				$('#showAll').on('click', function(event) {
 		  event.preventDefault(); // To prevent following the link (optional)

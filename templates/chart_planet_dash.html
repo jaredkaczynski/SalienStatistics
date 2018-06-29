@@ -140,7 +140,21 @@
         var PlanetChart = new Chart(ctx, {
             type: 'line',
             data: chartDataB,
-			options: {				
+			options: {
+				scales: {
+					yAxes: [{
+					  scaleLabel: {
+						display: true,
+						labelString: 'Completion Percent'
+					  }
+					}],
+					xAxes: [{
+					  scaleLabel: {
+						display: true,
+						labelString: 'Time Starting at Planet Activation'
+					  }
+					}]
+				  }, 			
 				legend: {
 				display: false,
 					},
