@@ -79,7 +79,7 @@ def get_zone_json(zone):
 def load_from_files():
     path = 'logger3/PlanetData1*.txt'
     files=glob.glob(path)
-    for file in sorted(files)[0::4]:
+    for file in sorted(files)[0::2]:
         #print(file)
         with open(file, 'r', encoding='utf-8') as f:
             parse_json_planets(f.read())
@@ -275,7 +275,7 @@ def update_time_scale():
     #dts = [dt.strftime('%Y-%m-%d T%H:%M Z') for dt in
     dts = [dt.strftime('%d T%H:%M') for dt in  
        datetime_range(datetime(2018, 6, 22, 4, 5), datetime.utcnow(), 
-       timedelta(minutes=20))]  
+       timedelta(minutes=10))]  
     planet_data.dts = dts
     #save the data to file
 def colorScale(i):
@@ -388,7 +388,7 @@ def chart4():
 def custom_time_scale(start, end):
     dts = [dt.strftime('%d T%H:%M') for dt in  
            datetime_range(datetime.fromtimestamp(int(start)), datetime.fromtimestamp(int(end)), 
-           timedelta(minutes=20))]  
+           timedelta(minutes=10))]  
     return(dts)    
     
 def make_cache_key(*args, **kwargs):
