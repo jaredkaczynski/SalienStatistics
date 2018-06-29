@@ -68,7 +68,7 @@
 			
           <section class="row text-center placeholders col-12">
             <canvas id="PlanetChart" ></canvas>
-			 <button type="button" id="showAll" class="btn btn-dark">Show All Data</button>			
+			 <button type="button" id="showAll" class="btn btn-dark">Show All Data (May Cause Performance Issues)</button>			
           </section>
         </main>
       </div>
@@ -90,7 +90,7 @@
         // define the chart data
         var chartDataB = {
             labelsAll: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
-			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-67),
+			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-139),
             datasets: [{% for clan, clan_info in planet_data.top_clans_rotated.items() %}
 			{
 				label: "{{clan}}",
