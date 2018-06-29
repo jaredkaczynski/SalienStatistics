@@ -178,8 +178,10 @@
 	var planetZoneOut = {};
 	var planetPlayerHistoryCount = {};
 	var planetPlayerHistoryTime = {};	
+	var planetPlayHistoryLast = {};
 	var startTime = Date.now()
 	var minimisers = {};
+	var global_planet_zones = {};
 	firstload = true;
 	const Item = ({ url, img, title, current_players,capture_progress, id}) => `
 		<div class="col-6 col-sm-4 placeholder" capture_progress=${capture_progress} id=${id}>
@@ -266,11 +268,8 @@
 				url: "https://community.steam-api.com/ITerritoryControlMinigameService/GetPlanet/v0001/?id="+planet_id,
 				type: "GET",
 				success: function(data) {
-					if(global_planets[planet_id] == null){
-						global_planets[planet_id] = {};
-					}
-					global_planets[planet_id].zones = obj;
-					obj = data.response.planets[0].zones;
+					obj = data.response.planets[0];
+					global_planet_zones[planet_id] = obj;	
 					appendTable(obj, element)
 				}
 				});
@@ -360,19 +359,20 @@
 		function startTimer(){
 			setInterval(function() {
 				update_data()
-			}, 5000);
+			}, 10000);
 			setTimeout(function() {
 				updateZones()
 			},100);
 			setInterval(function() {
 				updateZones()
 			}, 300000);
+			/**
 			setInterval(function() {
 				test = Object.keys(planetPlayerHistoryTime)[0]
 				if(test != null && planetPlayerHistoryTime[test].length > 6){
 				fake_update_data()
 			}
-			}, 250);
+			}, 250);**/
 		}
 		
 		
@@ -404,17 +404,25 @@
 				if(id in planetPlayerHistoryTime){
 					if(!(id in objectives)){
 						var initial = [1,1,1,1];
-						var objective = makeObjective(quadratic, planetPlayerHistoryTime[id], planetPlayerHistoryCount[id]); // then carry on as before
+						var objective = makeObjective(quadratic, planetPlayerHistoryTime[id].slice(Math.max(planetPlayerHistoryTime[id].length - 8, 1)), planetPlayerHistoryCount[id].slice(Math.max(planetPlayerHistoryCount[id].length - 8, 1))); // then carry on as before
 						var minimiser = numeric.uncmin(objective,initial);
-						minimisers[id] = minimiser;
+						if(between(minimiser.solution[0],-50,50) && between(minimiser.solution[1],-50,50)){
+							minimisers[id] = minimiser;
+						}
 					}
-					x = getTimeMs();
-					console.log(typeof(minimisers[id].solution[0]))
-					fake_player_count = minimisers[id].solution[0]*x^2 + minimisers[id].solution[1]*x^1 + minimisers[id].solution[2]
-					//fake_player_count = minimisers[id].solution[0]*x^4 + minimisers[id].solution[1]*x^2 + minimisers[id].solution[2]*x^1 + minimisers[id].solution[3]
-					$(this).find('.text-muted').text("Players: " + fake_player_count);
+					if(id in minimisers){
+						x = getTimeMs();
+						fake_player_count = minimisers[id].solution[0]*x^2 + minimisers[id].solution[1]*x^1 + minimisers[id].solution[2]
+						//fake_player_count = minimisers[id].solution[0]*x^4 + minimisers[id].solution[1]*x^2 + minimisers[id].solution[2]*x^1 + minimisers[id].solution[3]
+						new_count = planetPlayHistoryLast[id] + fake_player_count;
+						$(this).find('.text-muted').text("Players: " + new_count);
+					}
 				}
 			});
+		}
+		
+		function between(x, min, max) {
+		  return x >= min && x <= max;
 		}
 		
 		function getTimeMs(){
@@ -442,11 +450,18 @@
 		function update_zone_progress(){
 			firstload = false;
 			zoneCount = [0,0,0]
-			for(planet_position in global_planets){
-				planet = global_planets[planet_position];
-				if(planet.state.active == true && planet.state.capture_progress < 1){
+			for(var planet_position in global_planet_zones){
+				planet = global_planet_zones[planet_position];
+				planet_id = planet.id
+				if(planet_id == 32){
+					console.log(planet)
+					console.log(global_planet_zones)
+				}
+				if("state" in planet && "zones" in planet){
 					for(zone_id in planet.zones){
+						//console.log("Position: " + planet.id)
 						if(planet.zones[zone_id].captured == false){
+							//console.log("Zone: " + zone_id)
 							switch(planet.zones[zone_id].difficulty) {
 								case 1:
 								zoneCount[0] += 1
@@ -483,17 +498,17 @@
 			 success: function(data) {
                 //var obj = JSON.parse(data.contents);
 				obj = data;
-				if(!(planetId in global_planets)){
-					global_planets[planetId] = {}
-				}
-				global_planets[planetId].zones = obj.response.planets[0].zones;
+				/**if(!(planetId in global_planets)){
+					global_planets[planetId] = {};
+				}**/
+				global_planet_zones[planetId] = obj.response.planets[0];
             }
 			});
 		}
 		
 		function updateZones(){
 			for( planet_name in global_planets){
-				console.log(global_planets[planet_name])
+				//console.log(global_planets[planet_name])
 				if(global_planets[planet_name].state.active == true && global_planets[planet_name].state.captured == false){
 					updatePlanet(global_planets[planet_name].id)
 				}
@@ -534,10 +549,9 @@
 						planetPlayerHistoryCount[id] = [planet.state.current_players]
 						planetPlayerHistoryTime[id] = [getTimeMs()]
 					}
-					if(planet.state.current_players != planetPlayerHistoryCount[id][planetPlayerHistoryCount[id].length - 1]){
-						console.log(planetPlayerHistoryCount[id])
-						console.log(planetPlayerHistoryTime[id])
-						planetPlayerHistoryCount[id].push(planet.state.current_players)
+					if(planetPlayerHistoryCount[id].length > 0 && planet.state.current_players != planetPlayerHistoryCount[id][planetPlayerHistoryCount[id].length - 1]){
+						planetPlayHistoryLast[id] = planet.state.current_players
+						planetPlayerHistoryCount[id].push(planetPlayHistoryLast[id] - planet.state.current_players)
 						planetPlayerHistoryTime[id].push(getTimeMs())
 					}
 				}
