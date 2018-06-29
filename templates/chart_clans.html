@@ -90,7 +90,7 @@
         // define the chart data
         var chartDataB = {
             labelsAll: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}],
-			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-139),
+			labels: [{% for time in planet_data.dts %}"{{time}}",{% endfor %}].slice(1).slice(-67),
             datasets: [{% for clan, clan_info in planet_data.top_clans_rotated.items() %}
 			{
 				label: "{{clan}}",
