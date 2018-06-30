@@ -301,7 +301,7 @@
 						td.innerHTML = zones[i].difficulty;
 						$(td).addClass("difficulty-" + zones[i].difficulty + " difficulty-cell")						
 					}
-					if("capture_progress" in zones[i]){
+					if("capture_progress" in zones[i] && "leader" in zones[i]){
 						td.title = parseInt(zones[i].capture_progress*100) + "% \n Leader: " + zones[i].leader.name;
 					} else {
 						td.title = i;
