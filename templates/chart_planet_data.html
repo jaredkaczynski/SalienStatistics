@@ -151,6 +151,7 @@
 						  <div class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="240"></div>
 						  <div class="progress-bar bg-warning" role="progressbar" style="width: 0%" aria-valuenow="30" aria-valuemin="0" aria-valuemax="240"></div>
 						  <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="240"></div>
+						  <div class="progress-bar bg-primary" role="progressbar" style="width: 0%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="240"></div>
 						</div>
 					</div>
 					<div class="col-md-4" style="text-align:center;margin-top: 30px;">
@@ -363,7 +364,7 @@
 		function startTimer(){
 			setInterval(function() {
 				update_data()
-			}, 10000);
+			}, 5000);
 			setTimeout(function() {
 				updateZones()
 			},100);
@@ -373,7 +374,7 @@
 			/**
 			setInterval(function() {
 				test = Object.keys(planetPlayerHistoryTime)[0]
-				if(test != null && planetPlayerHistoryTime[test].length > 6){
+				if(test != null && planetPlayerHistoryTime[test].length > 5){
 				fake_update_data()
 			}
 			}, 250);**/
@@ -408,15 +409,13 @@
 				if(id in planetPlayerHistoryTime){
 					if(!(id in objectives)){
 						var initial = [1,1,1,1];
-						var objective = makeObjective(quadratic, planetPlayerHistoryTime[id].slice(Math.max(planetPlayerHistoryTime[id].length - 8, 1)), planetPlayerHistoryCount[id].slice(Math.max(planetPlayerHistoryCount[id].length - 8, 1))); // then carry on as before
+						var objective = makeObjective(linear, planetPlayerHistoryTime[id].slice(Math.max(planetPlayerHistoryTime[id].length - 6, 1)), planetPlayerHistoryCount[id].slice(Math.max(planetPlayerHistoryCount[id].length - 6, 1))); // then carry on as before
 						var minimiser = numeric.uncmin(objective,initial);
-						if(between(minimiser.solution[0],-50,50) && between(minimiser.solution[1],-50,50)){
-							minimisers[id] = minimiser;
-						}
+						minimisers[id] = minimiser;
 					}
 					if(id in minimisers){
 						x = getTimeMs();
-						fake_player_count = minimisers[id].solution[0]*x^2 + minimisers[id].solution[1]*x^1 + minimisers[id].solution[2]
+						fake_player_count = minimisers[id].solution[0]*x + minimisers[id].solution[1]
 						//fake_player_count = minimisers[id].solution[0]*x^4 + minimisers[id].solution[1]*x^2 + minimisers[id].solution[2]*x^1 + minimisers[id].solution[3]
 						new_count = planetPlayHistoryLast[id] + fake_player_count;
 						$(this).find('.text-muted').text("Players: " + new_count);
@@ -453,14 +452,10 @@
 		
 		function update_zone_progress(){
 			firstload = false;
-			zoneCount = [0,0,0]
+			zoneCount = [0,0,0,0]
 			for(var planet_position in global_planet_zones){
 				planet = global_planet_zones[planet_position];
 				planet_id = planet.id
-				if(planet_id == 32){
-					console.log(planet)
-					console.log(global_planet_zones)
-				}
 				if("state" in planet && "zones" in planet){
 					for(zone_id in planet.zones){
 						//console.log("Position: " + planet.id)
@@ -476,6 +471,9 @@
 								case 3:
 								zoneCount[2] += 1
 								break;
+								case 4:
+								zoneCount[2] += 1
+								break;
 							}
 						}
 					}
@@ -488,6 +486,8 @@
 				$("#live_zones").find(".bg-warning").text(zoneCount[1] == 0?"" : zoneCount[1])
 				$("#live_zones").find(".bg-danger").css("width",zoneCount[2]) 
 				$("#live_zones").find(".bg-danger").text(zoneCount[2] == 0?"" : zoneCount[2])
+				$("#live_zones").find(".bg-primary").css("width",zoneCount[3]*20) 
+				$("#live_zones").find(".bg-primary").text(zoneCount[3] == 0?"" : zoneCount[3]*20)
 			}
 		}
 		
@@ -621,6 +621,11 @@
 			params[1] * x +
 			params[2];
 		};	
+		
+		var linear = function(params,x) {
+		  return params[0] * x +
+			params[1];
+		};
 		
 		var makeObjective = function(targetFunc,xlist,ylist) {
 		  var objective = function(params) {
