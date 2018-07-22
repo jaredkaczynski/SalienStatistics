@@ -274,7 +274,7 @@ def update_time_scale():
     #Y M D H M
     #dts = [dt.strftime('%Y-%m-%d T%H:%M Z') for dt in
     dts = [dt.strftime('%d T%H:%M') for dt in  
-       datetime_range(datetime(2018, 6, 22, 4, 5), datetime(2018, 7, 6, 0, 0), 
+       datetime_range(datetime(2018, 6, 22, 4, 5), datetime(2018, 7, 4, 18, 0), 
        timedelta(minutes=10))]  
     planet_data.dts = dts
     #save the data to file
@@ -344,7 +344,7 @@ def chart1():
     return render_template('chart.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data,capture_data=capture_data,capture_data_day=capture_data_day)
  
 @app.route("/player_charts")
-@cache.cached(timeout=300)
+@cache.cached(timeout=600)
 def chart2():
     #if it needs to update the data
     capture_data = ct.defaultdict(list)
@@ -361,14 +361,14 @@ def chart2():
     
 @app.route('/') 
 @app.route("/planet_live")
-@cache.cached(timeout=300)
+@cache.cached(timeout=600)
 def chart3():
     legend = 'Player Data'
     #if it needs to update the data
     return render_template('chart_planet_data.html', legend=legend,planet_names=planet_data.planet_names,planet_data=planet_data)
     
 @app.route("/clan_charts")
-@cache.cached(timeout=300)
+@cache.cached(timeout=600)
 def chart4():
     newA = dict(sorted(planet_data.top_clans_rotated.items(), key=lambda e: e[-1].clan_data, reverse=True)[:20])
     planet_data.top_clans_rotated = newA  
@@ -438,7 +438,7 @@ def main():
     planet_data = loadData()
     #check pickle data
     #print(loadData().planet_stats)
-    setup_scheduler()
+    #setup_scheduler()
     update_data()
     app.run(host="0.0.0.0",port=80)
 main()
