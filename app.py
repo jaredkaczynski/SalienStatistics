@@ -274,7 +274,7 @@ def update_time_scale():
     #Y M D H M
     #dts = [dt.strftime('%Y-%m-%d T%H:%M Z') for dt in
     dts = [dt.strftime('%d T%H:%M') for dt in  
-       datetime_range(datetime(2018, 6, 22, 4, 5), datetime.utcnow(), 
+       datetime_range(datetime(2018, 6, 22, 4, 5), datetime(2018, 7, 6, 0, 0), 
        timedelta(minutes=10))]  
     planet_data.dts = dts
     #save the data to file
